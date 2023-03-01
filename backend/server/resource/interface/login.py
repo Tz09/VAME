@@ -20,12 +20,12 @@ class Login(Resource):
         user = User.query.filter_by(username=username).first()
 
         if user is None:
-            data = {"message":"Username not Found"}
+            data = {"message":"Username Not Found."}
             status_code = 401
             response = make_response(jsonify(data),status_code)
             return response
         elif not bcrpyt.check_password_hash(user.password,password):
-            data = {"message":"Password Not Correct"}
+            data = {"message":"Wrong Password."}
             status_code = 401
             response = make_response(jsonify(data),status_code)
             return response

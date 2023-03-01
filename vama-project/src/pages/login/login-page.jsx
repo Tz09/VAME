@@ -16,6 +16,7 @@ export default function LoginPage() {
     const [usernameError,setUsernameError] = React.useState('');
     const [passwordError,setPasswordError] = React.useState('');
     const [showPassword,setShowPassword] = React.useState(false);
+    const [errorMessage,setErrorMessage] = React.useState('');
 
     function handleChange(event){
         setFormData(prevFormData => {
@@ -46,6 +47,7 @@ export default function LoginPage() {
         }
 
         if(isvalid){
+
             axios.post(`${API_URL}/login`,formData)
                 .then(response=>{
                     if(response.status == 200){
@@ -53,9 +55,14 @@ export default function LoginPage() {
                         navigate('/')
                     }
                 })
-                .catch(response => {
-                    console.log(response)
+                .catch(error => {
+                    setErrorMessage(error.response.data['message']);
                 })
+
+            setFormData(({
+                username: "",
+                password: "",
+            }))
             }
     }
 
@@ -88,6 +95,7 @@ export default function LoginPage() {
                     <span className="bi bi-eye-fill" onClick={handleTogglePassword}/>
                 </div>
                 {passwordError && <span className="error-container">{passwordError}</span>}
+                {errorMessage && <span className="error-container">{errorMessage}</span>}
                 <button type="submit">Submit</button>
             </form>
         </div>
