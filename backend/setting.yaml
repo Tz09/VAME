@@ -1,0 +1,8 @@
+secret_key: e04ae82ed78b0fad7367e394f119236b38e3aaa6f11b3c91930075b48c2f7185
+admin_account : admin1
+database:
+  dbname: test
+  user: postgres
+  password: 1357924680
+  host: localhost
+  port: 5432
