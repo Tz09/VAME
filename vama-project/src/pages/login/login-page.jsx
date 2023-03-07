@@ -42,17 +42,16 @@ export default function LoginPage() {
         
         if(!formData.password.trim()){
             setPasswordError('*Password is required');
+            isvalid = false;
         }else{
             setPasswordError('');
         }
 
         if(isvalid){
-
-            axios.post(`${API_URL}/login`,formData)
+            axios.post(`${API_URL}/login`,formData,{withCredentials: true})
                 .then(response=>{
                     if(response.status == 200){
-                        localStorage.setItem('token',response.data.access_token)
-                        navigate('/')
+                        window.location.href = "./"
                     }
                 })
                 .catch(error => {

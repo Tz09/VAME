@@ -1,7 +1,7 @@
 import importlib
 from server.service import _state
 
-interfaces = ['login','register','logout']
+interfaces = ['login','signup','logout']
 
 URLs = []
 for interface in interfaces:

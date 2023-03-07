@@ -3,9 +3,9 @@ from flask import request,abort,jsonify
 from flask_restful import Resource
 from server.service.models import db,User
 
-url = [('Register','/register')]
+url = [('Signup','/signup')]
 
-class Register(Resource):
+class Signup(Resource):
     def get(self):
         return "Register Active"
 
@@ -14,7 +14,7 @@ class Register(Resource):
         password = request.json["password"]
 
         user_exists = User.query.filter_by(username=username).first() is not None
-
+ 
         if user_exists:
             return jsonify({"error":"User already exists"})
         

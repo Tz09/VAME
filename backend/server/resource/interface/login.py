@@ -1,18 +1,29 @@
-from flask import request,jsonify,make_response
+from flask import request,jsonify,make_response,session
 from flask_restful import Resource
+from flask_cors import cross_origin
 from server.service.models import User
 from server.service.flask_extension import bcrpyt
-from flask_jwt_extended import create_access_token,get_jwt_identity,jwt_required
 
 url = [('Login','/login')]
  
 class Login(Resource):
-    
-    @jwt_required()
-    def get(self):
-        current_user = get_jwt_identity()
-        return jsonify(logged_in_as=current_user)
 
+    def get(self):
+        user_id = session.get("userid")
+
+        if not user_id:
+            status_code = 401
+            data = {"error":user_id}
+            response = make_response(jsonify(data),status_code)
+            return response
+        else:
+            user = User.query.filter_by(id=user_id).first()
+
+            return jsonify({
+                "id":user.id,
+                "username":user.username
+            })
+        
     def post(self):
         username = request.json["username"]
         password = request.json["password"]
@@ -30,6 +41,11 @@ class Login(Resource):
             response = make_response(jsonify(data),status_code)
             return response
         else:
-            access_token = create_access_token(identity=username)
-            response = {"access_token":access_token}
-            return jsonify(response)
+            session["userid"] = user.id
+            data = {
+                "id":user.id,
+                "username":user.username
+            }
+            response = jsonify(data)
+            return response
+        
