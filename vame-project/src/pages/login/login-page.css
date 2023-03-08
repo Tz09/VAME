@@ -10,31 +10,28 @@
     font-family: 'Inter',sans-serif;
 }
 
-.login-container,.form-container{
+.login-form-container{
     display:flex;
     flex-direction: column;
-}
-
-.form-container{
     padding:7rem;
     border: 1px solid black;
     border-radius: 10px;
 }
 
-label{
+.login-label{
     text-align:left;
     padding:0.25rem 0;
     font-weight: 600;
 }
 
-input{
+.login-input{
     margin: 0.5rem 0;
     padding: 1rem;
     border: none;
     border-radius: 10px;
 }
 
-button {
+.login-submit{
     border:none;
     background-color: white;
     padding: 20px;
@@ -46,7 +43,7 @@ button {
     font-family: 'Inter',sans-serif;
 }
 
-h2{
+.login.header{
     padding:0.5rem;
     font-size: xx-large;
 }

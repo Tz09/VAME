@@ -18,7 +18,6 @@ class Login(Resource):
             return response
         else:
             user = User.query.filter_by(id=user_id).first()
-
             return jsonify({
                 "id":user.id,
                 "username":user.username

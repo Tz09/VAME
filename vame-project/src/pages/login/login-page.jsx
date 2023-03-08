@@ -1,12 +1,9 @@
-import './login-page.css'
+import './login-page.css';
 import React from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../data/config';
 
 export default function LoginPage() {
-
-    const navigate = useNavigate();
 
     const [formData,setFormData] = React.useState({
         username: "",
@@ -62,7 +59,10 @@ export default function LoginPage() {
                 username: "",
                 password: "",
             }))
+
             }
+            
+            setErrorMessage('')
     }
 
     function handleTogglePassword(){
@@ -71,18 +71,19 @@ export default function LoginPage() {
 
     return (
         <div className="login-container">
-            <form className="form-container" onSubmit={handleSubmit}>
-                <h2>Login</h2>
-                <label>Username: </label>
+            <form className="login-form-container" onSubmit={handleSubmit}>
+                <h2 className="login-header">Login</h2>
+                <label className="login-label">Username: </label>
                 <input 
                     type="text"
                     placeholder="Username"
                     onChange={handleChange}
                     name="username"
                     value={formData.username}
+                    className="login-input"
                 />
                 {usernameError && <span className="error-container">{usernameError}</span>}
-                <label>Password: </label>
+                <label className="login-label">Password: </label>
                 <div className="password-container">
                     <input 
                         type={showPassword ? 'text' : 'password'} 
@@ -90,12 +91,13 @@ export default function LoginPage() {
                         onChange={handleChange}
                         name="password"
                         value={formData.password}
+                        className="login-input"
                     />
                     <span className="bi bi-eye-fill" onClick={handleTogglePassword}/>
                 </div>
                 {passwordError && <span className="error-container">{passwordError}</span>}
                 {errorMessage && <span className="error-container">{errorMessage}</span>}
-                <button type="submit">Submit</button>
+                <button type="submit" className="login-submit">Submit</button>
             </form>
         </div>
     );
