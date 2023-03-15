@@ -4,6 +4,7 @@ import LandingPage from '../pages/landing/landing-page'
 import ErrorPage from '../pages/error/error-page';
 import LoginPage from '../pages/login/login-page';
 import SignupPage from '../pages/signup/signup-page';
+import AccountManagementPage from "../pages/account-management/account-management-page";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -11,6 +12,7 @@ const router = createBrowserRouter(
         <Route path="/login" element={<LoginPage/>}/>
         <Route path ="/" element={<LandingPage/>}/>
         <Route path="/signup" element={<SignupPage/>}/>
+        <Route path="/accountmanagement" element={<AccountManagementPage/>}/>
         <Route path="*" element={<ErrorPage/>}/>
       </Route>
     )

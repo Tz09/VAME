@@ -6,5 +6,5 @@ url = [('Logout','/logout')]
 class Logout(Resource):
 
     def get(self):
-        session.pop("userid",None)
+        session.pop("user_id",None)
         return {"message":"Logout Successful!"}

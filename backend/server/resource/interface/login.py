@@ -1,6 +1,5 @@
 from flask import request,jsonify,make_response,session
 from flask_restful import Resource
-from flask_cors import cross_origin
 from server.service.models import User
 from server.service.flask_extension import bcrpyt
 
@@ -9,7 +8,7 @@ url = [('Login','/login')]
 class Login(Resource):
 
     def get(self):
-        user_id = session.get("userid")
+        user_id = session.get("user_id")
 
         if not user_id:
             status_code = 401
@@ -24,8 +23,9 @@ class Login(Resource):
             })
         
     def post(self):
-        username = request.json["username"]
-        password = request.json["password"]
+        json = request.get_json()
+        username = json.get("username")
+        password = json.get("password")
 
         user = User.query.filter_by(username=username).first()
 
@@ -40,7 +40,7 @@ class Login(Resource):
             response = make_response(jsonify(data),status_code)
             return response
         else:
-            session["userid"] = user.id
+            session["user_id"] = user.id
             data = {
                 "id":user.id,
                 "username":user.username

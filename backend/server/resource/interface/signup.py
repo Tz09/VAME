@@ -10,9 +10,22 @@ class Signup(Resource):
         return "Register Active"
 
     def post(self):
-        username = request.json["username"]
-        password = request.json["password"]
-
+        json = request.get_json()
+        username = json.get("username")
+        password = json.get("password")
+        
+        if username.strip() == "":
+            status_code = 401
+            data = {"message":"Invalid username value."}
+            response = make_response(jsonify(data),status_code)
+            return response
+        
+        if password.strip() == "":
+            status_code = 401
+            data = {"message":"Invalid password."}
+            response = make_response(jsonify(data),status_code)
+            return response
+  
         user_exists = User.query.filter_by(username=username).first() is not None
  
         if user_exists:

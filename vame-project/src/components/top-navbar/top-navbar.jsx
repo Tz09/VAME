@@ -20,7 +20,7 @@ export default function TopNavBar() {
           const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
           setUser(resp.data);
         } catch (error) {
-          window.location.href = "./login"
+          window.location.href = "./login";
         }
       })();
     }, []);
@@ -41,14 +41,18 @@ export default function TopNavBar() {
         axios.get(`${API_URL}/logout`,{withCredentials: true})
         .then(response => {
           if(response.status == 200)
-            window.location.href = "./login"
+            window.location.href = "./login";
         }).catch(error => {
-            window.location.href = "./login"
+            window.location.href = "./login";
         })
     }
     
     function signUp(){
-      window.location.href = "./signup"
+      window.location.href = "./signup";
+    }
+
+    function accountManage(){
+      window.location.href = "./accountmanagement";
     }
 
     return (
@@ -61,7 +65,7 @@ export default function TopNavBar() {
           {showButtons && (
             <div className="buttons">
               <button onClick={signUp}>Sign Up</button>
-              <button>Account Management</button>
+              <button onClick={accountManage}>Account Management</button>
               <button onClick={logOut}>Log Out</button>
             </div>
           )}

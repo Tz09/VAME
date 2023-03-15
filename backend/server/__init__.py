@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_restful import Api
-from server.service.flask_extension import bcrpyt,cors,session
+from server.service.flask_extension import bcrpyt,cors,session,ma
 from server.service.models import db,create_admin
-from flask_cors import CORS
+
 def create_app():
     app = Flask(__name__)
     api = Api(app)
@@ -15,7 +15,8 @@ def create_app():
     bcrpyt.init_app(app)
     cors.init_app(app)
     session.init_app(app)
-    CORS(app, supports_credentials=True)
+    cors.init_app(app)
+    ma.init_app(app)
     
     # Create Database
     with app.app_context():
