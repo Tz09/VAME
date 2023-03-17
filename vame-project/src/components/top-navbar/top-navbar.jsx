@@ -64,7 +64,6 @@ export default function TopNavBar() {
           <div className="options-button" onClick={toggleButtons}><i className="bi bi-gear-fill"></i></div>
           {showButtons && (
             <div className="buttons">
-              <button onClick={signUp}>Sign Up</button>
               <button onClick={accountManage}>Account Management</button>
               <button onClick={logOut}>Log Out</button>
             </div>

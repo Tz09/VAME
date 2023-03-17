@@ -38,7 +38,4 @@ class Signup(Resource):
             new_user = User(username=username,password=hashed_password)
             db.session.add(new_user)
             db.session.commit()
-            return jsonify({
-                "username":new_user.username,
-                "password": new_user.password
-            })
+            return jsonify({"message":"Register Successful."})
