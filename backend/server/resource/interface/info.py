@@ -1,4 +1,3 @@
-import json
 from flask import jsonify,request,make_response
 from flask_restful import Resource
 from server.service.models import User

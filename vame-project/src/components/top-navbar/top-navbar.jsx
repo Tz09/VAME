@@ -7,9 +7,9 @@ import { API_URL } from '../../data/config';
 export default function TopNavBar() {
 
     const [user,setUser] = React.useState("");
-    const [showButtons,setShowButtons] = React.useState(false);
-    const navbarRef = React.useRef(null);
-
+    const [admin,setAdmin] = React.useState(false);
+    const [loading,setLoading] = React.useState(true);
+    
     function toggleButtons(){
       setShowButtons(!showButtons);
     }
@@ -18,24 +18,21 @@ export default function TopNavBar() {
       (async () => {
         try {
           const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
-          setUser(resp.data);
+          if(resp.status == 200){
+            setUser(resp.data);
+            const resp2 = await axios.get(`${API_URL}/access`,{withCredentials: true});
+            if(resp2.data["message"] == 'True'){
+              setAdmin(true)
+            }else{
+              setAdmin(false)
+            }
+          }
+          setLoading(false)
         } catch (error) {
           window.location.href = "./login";
         }
       })();
     }, []);
-    
-    React.useEffect(() => {
-      function handleClickOutside(event) {
-        if (navbarRef.current && !navbarRef.current.contains(event.target)) {
-          setShowButtons(false);
-        }
-      }
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, [navbarRef]);
 
     function logOut(){
         axios.get(`${API_URL}/logout`,{withCredentials: true})
@@ -47,27 +44,21 @@ export default function TopNavBar() {
         })
     }
     
-    function signUp(){
-      window.location.href = "./signup";
-    }
-
     function accountManage(){
       window.location.href = "./accountmanagement";
     }
-
-    return (
-        <div className="topnav" ref={navbarRef}>
-          <a href="/" className="logo">
-            <img src={"/vame-logo.png"} alt="Logo" />
-          </a>
-          <div className="username">{user.username}</div>
-          <div className="options-button" onClick={toggleButtons}><i className="bi bi-gear-fill"></i></div>
-          {showButtons && (
-            <div className="buttons">
-              <button onClick={accountManage}>Account Management</button>
-              <button onClick={logOut}>Log Out</button>
-            </div>
-          )}
-        </div>
-    );
+    
+    if(loading == false){
+      return (
+          <div className="topnav">
+            <a href="/" className="logo">
+              <img src={"/vame-logo.png"} alt="Logo" />
+            </a>
+            <div className="username">{user.username}</div>
+            {admin && <button className='button' onClick={accountManage}>Account Management</button>}
+            <button className="button" onClick={logOut}>Log Out</button>
+            
+          </div>
+      );
+    }
   }

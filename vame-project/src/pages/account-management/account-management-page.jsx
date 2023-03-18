@@ -4,7 +4,7 @@ import { API_URL } from "../../data/config";
 import TopNavBar from "../../components/top-navbar/top-navbar";
 import MaterialReactTable from "material-react-table";
 import { Box,Button,Dialog,DialogActions,DialogContent,DialogTitle,IconButton,MenuItem,Stack,TextField,Tooltip} from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit,ChangeCircle } from '@mui/icons-material';
 import SignupModal from "../../components/signup-modal/signup-modal";
 import PasswordAppendModal from "../../components/passwordappend-modal/passwordappend-modal";
 
@@ -55,6 +55,7 @@ export default function AccountManagementPage() {
         setErrorMessage("");
     }
 
+    
     React.useEffect(() =>{
         axios.get(`${API_URL}/info`)
         .then(response=>{
@@ -110,6 +111,57 @@ export default function AccountManagementPage() {
         [data],
       );
 
+    
+    const handleChangeAccess = React.useCallback(
+        (row) => {
+            if (
+                !confirm(`Are you sure you want to change access ${row.getValue('username')}?`)
+              ) {
+                return;
+              }
+            const payload = {"username":`${row.getValue('username')}`}
+            axios.post(`${API_URL}/access`,payload,{withCredentials: true})
+            .then(response=>{
+                if(response.status == 200){
+                    alert(response.data['message']);
+                    axios.get(`${API_URL}/info`)
+                    .then(response=>{
+                        if(response.status == 200){
+                            const tableData = response.data.map((item) => {{
+                                return {
+                                    ...item,
+                                    analytic_page_access: item.analytic_page_access ? "Allowed" : "Denied"
+                                }
+                            }})
+                            setData(tableData)
+                        }
+                    })
+                    .catch(error => {
+                            console.log(error)
+                    })
+                }
+                })
+                .catch(error => {
+                    alert(error.response.data['message']);
+                    axios.get(`${API_URL}/info`)
+                    .then(response=>{
+                        if(response.status == 200){
+                            const tableData = response.data.map((item) => {{
+                                return {
+                                    ...item,
+                                    analytic_page_access: item.analytic_page_access ? "Allowed" : "Denied"
+                                }
+                            }})
+                            setData(tableData)
+                        }
+                    })
+                    .catch(error => {
+                            console.log(error)
+                    })
+                })
+        },
+    )
+
     return (
         <>
             <TopNavBar/>
@@ -130,7 +182,7 @@ export default function AccountManagementPage() {
                 }}
                 renderRowActions={({ row, table }) => (
                     <Box>
-                      <Tooltip arrow placement="left" title="Edit">
+                      <Tooltip arrow placement="right" title="Change Password">
                         <IconButton onClick={() => handlePasswordAppendOpen(row)}>
                           <Edit />
                         </IconButton>
@@ -138,6 +190,11 @@ export default function AccountManagementPage() {
                       <Tooltip arrow placement="right" title="Delete">
                         <IconButton color="error" onClick={() => handleDeleteRow(row)}>
                           <Delete />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip arrow placement="right" title="Change Access">
+                        <IconButton onClick={() => handleChangeAccess(row)}>
+                          <ChangeCircle />
                         </IconButton>
                       </Tooltip>
                     </Box>

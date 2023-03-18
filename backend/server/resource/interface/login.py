@@ -8,7 +8,7 @@ url = [('Login','/login')]
 class Login(Resource):
 
     def get(self):
-        user_id = session.get("user_id")
+        user_id = session.get("userid")
 
         if not user_id:
             status_code = 401
@@ -40,7 +40,7 @@ class Login(Resource):
             response = make_response(jsonify(data),status_code)
             return response
         else:
-            session["user_id"] = user.id
+            session["userid"] = user.id
             data = {
                 "id":user.id,
                 "username":user.username
