@@ -44,7 +44,7 @@ class Info(Resource):
             user.password = hashed_password
             db.session.commit()
             return jsonify({
-                "message":"Password Changed Successful."
+                "message":"Password Changed Successful"
             })
         
     # Delete the Non-Admin Account

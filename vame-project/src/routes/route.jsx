@@ -14,7 +14,6 @@ const router = createBrowserRouter(
         <Route path="*" element={<ErrorPage/>}/>
       </Route>
     )
-    
 );
 
 export default router;

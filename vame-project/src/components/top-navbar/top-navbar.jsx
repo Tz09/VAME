@@ -4,11 +4,10 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../data/config';
 
-export default function TopNavBar() {
+export default function TopNavBar(props) {
 
     const [user,setUser] = React.useState("");
     const [admin,setAdmin] = React.useState(false);
-    const [loading,setLoading] = React.useState(true);
     
     function toggleButtons(){
       setShowButtons(!showButtons);
@@ -22,12 +21,12 @@ export default function TopNavBar() {
             setUser(resp.data);
             const resp2 = await axios.get(`${API_URL}/access`,{withCredentials: true});
             if(resp2.data["message"] == 'True'){
-              setAdmin(true)
+              setAdmin(true);
             }else{
               setAdmin(false)
             }
           }
-          setLoading(false)
+          props.setLoading(false)
         } catch (error) {
           window.location.href = "./login";
         }
@@ -48,7 +47,7 @@ export default function TopNavBar() {
       window.location.href = "./accountmanagement";
     }
     
-    if(loading == false){
+    if(props.loading == false){
       return (
           <div className="topnav">
             <a href="/" className="logo">

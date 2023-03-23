@@ -7,12 +7,15 @@ import { Box,Button,Dialog,DialogActions,DialogContent,DialogTitle,IconButton,Me
 import { Delete, Edit,ChangeCircle } from '@mui/icons-material';
 import SignupModal from "../../components/signup-modal/signup-modal";
 import PasswordAppendModal from "../../components/passwordappend-modal/passwordappend-modal";
+import PasswordAppendAdminModal from "../../components/passwordappendadmin-modal/passwordappendadmin";
 
 export default function AccountManagementPage() {
 
+    const [loading,setLoading] = React.useState(true);
     const [data,setData] = React.useState([]);
     const [signupopen,setSignupOpen] = React.useState(false);
     const [passwordappendopen,setPasswordAppendOpen] = React.useState(false);
+    const [paswordappendadminopen,setPasswordAppendAdminOpen] = React.useState(false);
 
     const [formData,setFormData] = React.useState({
         username: "",
@@ -25,6 +28,8 @@ export default function AccountManagementPage() {
 
     const [passwordappend,setPasswordAppend] = React.useState('');
     const [rowUsername,setRowUsername] = React.useState('');
+
+    const [adminName,setadminName] = React.useState('');
 
     function handleSignupOpen(){
         setSignupOpen(true);
@@ -50,12 +55,21 @@ export default function AccountManagementPage() {
         setPasswordAppendOpen(false);
         setRowUsername("");
         setPasswordAppend("");
-        setUsernameError("");
         setPasswordError("");
         setErrorMessage("");
     }
 
+    function handlePasswordAppendAdminOpen(){
+        setPasswordAppendAdminOpen(true);
+    }
     
+    function handlePasswordAppendAdminClose(){
+        setPasswordAppendAdminOpen(false);
+        setPasswordAppend("");
+        setPasswordError("");
+        setErrorMessage("");
+    }
+
     React.useEffect(() =>{
         axios.get(`${API_URL}/info`)
         .then(response=>{
@@ -73,6 +87,22 @@ export default function AccountManagementPage() {
                 console.log(error)
         })
     },[])
+
+    React.useEffect(() => {
+        (async () => {
+          try {
+            const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
+            if(resp.status == 200){
+              const resp2 = await axios.get(`${API_URL}/access`,{withCredentials: true});
+              if(resp2.data["message"] == 'True'){
+                setadminName(resp.data.username);
+              }
+            }
+          } catch (error) {
+            console.log(error)
+          }
+        })();
+      }, []);
 
     const columns = React.useMemo(
         () => [
@@ -164,11 +194,15 @@ export default function AccountManagementPage() {
 
     return (
         <>
-            <TopNavBar/>
-            <MaterialReactTable
+            <TopNavBar 
+                loading={loading} 
+                setLoading={setLoading}
+            />
+            {!loading && <MaterialReactTable
                 columns={columns}
                 data={data}
                 enableRowActions
+                enableColumnFilters={false}
                 displayColumnDefOptions={{
                     'mrt-row-actions': {
                     muiTableHeadCellProps: {
@@ -200,15 +234,24 @@ export default function AccountManagementPage() {
                     </Box>
                 )}
                 renderTopToolbarCustomActions={() => (
-                    <Button
-                      color="error"
-                      onClick={() => setSignupOpen(true)}
-                      variant="contained"
-                    >
-                      Create New Account
-                    </Button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <Button
+                        color="error"
+                        onClick={() => handleSignupOpen(true)}
+                        variant="contained"
+                        >
+                        Create New Account
+                        </Button>
+                        <Button
+                        color="error"
+                        onClick={() => handlePasswordAppendAdminOpen(true)}
+                        variant="contained"
+                        >
+                            Change Admin Password
+                        </Button>
+                    </div>
                 )}
-            />
+            />}
             <SignupModal
                 open={signupopen} 
                 onClose={handleSignupClose} 
@@ -225,6 +268,17 @@ export default function AccountManagementPage() {
                 open={passwordappendopen}
                 onClose={handlePasswordAppendClose}
                 rowUsername={rowUsername}
+                passwordappend={passwordappend}
+                setPasswordAppend={setPasswordAppend}
+                errorMessage={errorMessage} 
+                setErrorMessage={setErrorMessage} 
+                passwordError={passwordError} 
+                setPasswordError={setPasswordError} 
+            />
+            <PasswordAppendAdminModal
+                open={paswordappendadminopen}
+                onClose={handlePasswordAppendAdminClose}
+                adminName={adminName}
                 passwordappend={passwordappend}
                 setPasswordAppend={setPasswordAppend}
                 errorMessage={errorMessage} 
