@@ -8,6 +8,7 @@ export default function TopNavBar(props) {
 
     const [user,setUser] = React.useState("");
     const [admin,setAdmin] = React.useState(false);
+    const navigate = useNavigate();
     
     function toggleButtons(){
       setShowButtons(!showButtons);
@@ -28,7 +29,7 @@ export default function TopNavBar(props) {
           }
           props.setLoading(false)
         } catch (error) {
-          window.location.href = "./login";
+          console.log(error)
         }
       })();
     }, []);
@@ -37,14 +38,14 @@ export default function TopNavBar(props) {
         axios.get(`${API_URL}/logout`,{withCredentials: true})
         .then(response => {
           if(response.status == 200)
-            window.location.href = "./login";
+            navigate('/login')
         }).catch(error => {
-            window.location.href = "./login";
+            navigate('/login')
         })
     }
     
     function accountManage(){
-      window.location.href = "./accountmanagement";
+      navigate('/accountmanagement')
     }
     
     if(props.loading == false){
