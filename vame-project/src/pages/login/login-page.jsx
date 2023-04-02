@@ -3,11 +3,8 @@ import React from 'react';
 import axios from 'axios';
 import { API_URL } from '../../data/config';
 import { useNavigate } from "react-router-dom";
-
 export default function LoginPage() {
     
-    const navigate = useNavigate();
-
     const [formData,setFormData] = React.useState({
         username: "",
         password: "",
@@ -17,7 +14,8 @@ export default function LoginPage() {
     const [passwordError,setPasswordError] = React.useState('');
     const [showPassword,setShowPassword] = React.useState(false);
     const [errorMessage,setErrorMessage] = React.useState('');
-
+    const navigate = useNavigate();
+    
     function handleChange(event){
         setFormData(prevFormData => {
             const {name,value} = event.target
@@ -51,7 +49,6 @@ export default function LoginPage() {
             axios.post(`${API_URL}/login`,formData,{withCredentials: true})
                 .then(response=>{
                     if(response.status == 200){
-                        // window.location.href = "./"
                         navigate('/')
                     }
                 })

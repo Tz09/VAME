@@ -1,7 +1,16 @@
+import torch
+import yaml
 from flask import Flask
 from flask_restful import Api
 from server.service.flask_extension import bcrpyt,cors,session,ma
 from server.service.models import db,create_admin
+from server.ai.models.experimental import attempt_load
+
+with open('setting.yaml') as f:
+    setting = yaml.safe_load(f)
+
+import sys
+sys.path.insert(0, './ai')
 
 def create_app():
     app = Flask(__name__)

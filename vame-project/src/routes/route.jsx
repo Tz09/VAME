@@ -6,6 +6,7 @@ import LandingPage from '../pages/landing/landing-page'
 import ErrorPage from '../pages/error/error-page';
 import LoginPage from '../pages/login/login-page';
 import AccountManagementPage from "../pages/account-management/account-management-page";
+import DashboardPage from "../pages/dashboard/dashboard-page";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -42,6 +43,7 @@ const router = createBrowserRouter(
           return null;
         }}
         element={<AccountManagementPage/>}/>
+      <Route path="/dashboard" element={<DashboardPage/>}></Route>
       <Route path="*" element={<ErrorPage/>}/>
     </Route>
     )

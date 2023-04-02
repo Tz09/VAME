@@ -44,21 +44,38 @@ export default function TopNavBar(props) {
         })
     }
     
-    function accountManage(){
+    function navigateaccountManagement(){
       navigate('/accountmanagement')
     }
+
+    function navigateMonitoring(){
+      navigate('/')
+    }
     
+    function navigateDashboard(){
+      navigate('/dashboard')
+    }
+
     if(props.loading == false){
       return (
+        <>
           <div className="topnav">
             <a href="/" className="logo">
               <img src={"/vame-logo.png"} alt="Logo" />
             </a>
             <div className="username">{user.username}</div>
-            {admin && <button className='button' onClick={accountManage}>Account Management</button>}
+            {admin && <button className='button' onClick={navigateaccountManagement}>Account Management</button>}
             <button className="button" onClick={logOut}>Log Out</button>
-            
           </div>
+          <div className="selection-nav">
+            <div className="nav-section" onClick={navigateMonitoring}>
+              Monitoring 
+            </div>
+            <div className="nav-section" onClick={navigateDashboard}>
+              Dashboard 
+            </div>
+          </div>
+          </>
       );
     }
   }

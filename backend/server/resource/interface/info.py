@@ -59,7 +59,6 @@ class Info(Resource):
             response = make_response(jsonify(data),status_code)
             return response
         else:
-            print(user)
             db.session.delete(user)
             db.session.commit()
             return jsonify({"message":"Remove Successful."})
