@@ -15,11 +15,11 @@ class Access(Resource):
             return response
         else:
             user = User.query.filter_by(id=user_id).first()
-            is_admin=False
-            if user and user.is_admin:
-                is_admin = True
+            access=False
+            if user and user.analytic_page_access:
+                access = True
             
-            if is_admin:
+            if access:
                 return jsonify({
                     "message":"True"
                 })
@@ -28,7 +28,8 @@ class Access(Resource):
                     "message":"False"
                 })
     
-    def post(self):
+    # Change Analytic Access For Account
+    def put(self):
         json = request.get_json()
         username = json.get("username")
         user = User.query.filter_by(username=username).first()

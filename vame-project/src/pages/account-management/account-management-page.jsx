@@ -93,7 +93,7 @@ export default function AccountManagementPage() {
           try {
             const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
             if(resp.status == 200){
-              const resp2 = await axios.get(`${API_URL}/access`,{withCredentials: true});
+              const resp2 = await axios.get(`${API_URL}/admin`,{withCredentials: true});
               if(resp2.data["message"] == 'True'){
                 setadminName(resp.data.username);
               }
@@ -150,7 +150,7 @@ export default function AccountManagementPage() {
                 return;
               }
             const payload = {"username":`${row.getValue('username')}`}
-            axios.post(`${API_URL}/access`,payload,{withCredentials: true})
+            axios.put(`${API_URL}/access`,payload,{withCredentials: true})
             .then(response=>{
                 if(response.status == 200){
                     alert(response.data['message']);

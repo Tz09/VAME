@@ -1,5 +1,6 @@
 import torch
 import yaml
+import os
 from flask import Flask
 from flask_restful import Api
 from server.service.flask_extension import bcrpyt,cors,session,ma
@@ -34,6 +35,12 @@ def create_app():
         # Create Admin Account
         create_admin()
 
+    dir = os.getcwd()
+    image_path = setting["image_file"]
+    exist = os.path.isdir(os.path.join(dir,image_path))
+    if not exist:
+        os.mkdir(image_path)
+        
     # Add Url
     from server.service import _state
     from server.resource import interface

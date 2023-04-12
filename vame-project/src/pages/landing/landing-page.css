@@ -1,0 +1,25 @@
+.streaming-box{
+    border: 2px solid black;
+    margin: 8px;
+    padding: 20px;
+    min-height: 80vh;
+    min-width: 40vw;
+    box-sizing: border-box;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+}
+
+.streaming-image{
+    min-width: 640px;
+    min-height:480px;
+    max-width: 640px;
+    max-height: 480px;
+}
+
+.bounding-box {
+    position: absolute;
+    border: 2px solid red;
+    pointer-events: none;
+  }

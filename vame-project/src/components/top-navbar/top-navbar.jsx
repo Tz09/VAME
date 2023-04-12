@@ -8,6 +8,7 @@ export default function TopNavBar(props) {
 
     const [user,setUser] = React.useState("");
     const [admin,setAdmin] = React.useState(false);
+    const [access,setAccess] = React.useState(false);
     const navigate = useNavigate();
     
     function toggleButtons(){
@@ -20,11 +21,19 @@ export default function TopNavBar(props) {
           const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
           if(resp.status == 200){
             setUser(resp.data);
-            const resp2 = await axios.get(`${API_URL}/access`,{withCredentials: true});
+            const resp2 = await axios.get(`${API_URL}/admin`,{withCredentials: true});
+            const resp3 = await axios.get(`${API_URL}/access`,{withCredentials:true});
+            
             if(resp2.data["message"] == 'True'){
               setAdmin(true);
             }else{
-              setAdmin(false)
+              setAdmin(false);
+            }
+
+            if(resp3.data["message"] == 'True'){
+              setAccess(true);
+            }else{
+              setAccess(false);
             }
           }
           props.setLoading(false)
@@ -67,14 +76,17 @@ export default function TopNavBar(props) {
             {admin && <button className='button' onClick={navigateaccountManagement}>Account Management</button>}
             <button className="button" onClick={logOut}>Log Out</button>
           </div>
-          <div className="selection-nav">
-            <div className="nav-section" onClick={navigateMonitoring}>
-              Monitoring 
+          {access && 
+            <div className="selection-nav">
+              <div className="nav-section" onClick={navigateMonitoring}>
+                Monitoring 
+              </div>
+              <div className="nav-section" onClick={navigateDashboard}>
+                Dashboard 
+              </div>
             </div>
-            <div className="nav-section" onClick={navigateDashboard}>
-              Dashboard 
-            </div>
-          </div>
+          }
+
           </>
       );
     }

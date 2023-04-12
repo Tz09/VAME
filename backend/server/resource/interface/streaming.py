@@ -2,7 +2,10 @@ import cv2
 import torch
 import yaml
 import time
+import os
 import numpy as np
+import torch.backends.cudnn as cudnn
+from datetime import datetime
 from flask_restful import Resource
 from flask import Response
 from numpy import random
@@ -14,8 +17,6 @@ from ai.utils.torch_utils import select_device
 
 url = [('Streaming','/streaming')]
  
-cap = cv2.VideoCapture(0)
-
 with open('setting.yaml') as f:
     setting = yaml.safe_load(f)
 
@@ -24,129 +25,154 @@ device = select_device(device)
 img_size = setting["ai"]["img_size"]
 iou_thres = setting["ai"]["iou_thres"]
 conf_thres = setting["ai"]["conf_thres"]
+model = attempt_load(setting["ai"]["weight_file"],map_location=device)
+stride = int(model.stride.max())
+imgsz = check_img_size(img_size, s=stride)  # check img_size
 
-with torch.no_grad():
-    model = attempt_load(setting["ai"]["weight_file"],map_location=device)
+camera = cv2.VideoCapture(0)
+global crop_flag,last_crop_time
 
-def detect(image):
+crop_flag = True
+last_crop_time = time.time()
 
-    stride = int(model.stride.max())  # model stride
-    imgsz = check_img_size(img_size, s=stride)  # check img_size
-    half = device.type != 'cpu'
+def detect(frame):
+    global model
+    global crop_flag
+    with torch.no_grad():
+        cudnn.benchmark = True
+        imgsz = check_img_size(img_size, s=stride)  # check img_size
+        half = device.type != 'cpu'
 
-    # Run inference
-    if device.type != 'cpu':
-        model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
+        # Run inference
+        if device.type != 'cpu':
+            model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
 
-    # Append
-    # img0s = cv2.imread(image)
-    startTime = 0
-    img0s = image
-    img = letterbox(img0s,img_size,stride=stride)[0]
+        # Append New Label 
+        names = model.module.names if hasattr(model, 'module') else model.names
+        names.append('violated')
+        colors = [[255,128,0],[0,128,255],[0,0,255]]
+           
+        # Padded resize
+        img = letterbox(frame, img_size,stride)[0]
+        # Convert
+        img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+        img = np.ascontiguousarray(img)
 
-    # Convert
-    img = img[:,:,::-1].transpose(2,0,1)
-    img = np.ascontiguousarray(img)
+        img = torch.from_numpy(img).to(device)
+        img = img.half() if half else img.float()  # uint8 to fp16/32
+        img /= 255.0  # 0 - 255 to 0.0 - 1.0
+        if img.ndimension() == 3:
+            img = img.unsqueeze(0)
 
-    # Append New Label 
-    names = model.module.names if hasattr(model, 'module') else model.names
-    names.append('violated')
-    colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
+        # Warmup
+        if device.type != 'cpu' and (old_img_b != img.shape[0] or old_img_h != img.shape[2] or old_img_w != img.shape[3]):
+            old_img_b = img.shape[0]
+            old_img_h = img.shape[2]
+            old_img_w = img.shape[3]
 
-    img = torch.from_numpy(img).to(device)
-    img = img.half() if half else img.float()  # uint8 to fp16/32
-    img /= 255.0  # 0 - 255 to 0.0 - 1.0
-    if img.ndimension() == 3:
-        img = img.unsqueeze(0)
-    
-    # Inference
-    with torch.no_grad():   # Calculating gradients would cause a GPU memory leak
-        pred = model(img)[0]
+        # Inference
+        with torch.no_grad():   # Calculating gradients would cause a GPU memory leak
+            pred = model(img)[0]
 
-    pred = non_max_suppression(pred, conf_thres, iou_thres)
+        pred = non_max_suppression(pred, conf_thres, iou_thres)
+        for i, det in enumerate(pred):  # detections per image
+            s, im0 = '', frame
+        
+            gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
+            num_people = 0
+            num_violated = 0
+            if len(det):
+                # Rescale boxes from img_size to im0 size
+                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+                arr_det = det.cpu().numpy()
+                
+                # Get People and White Shoe Array
+                people = arr_det[(np.where(arr_det[:,-1] == 0))]
+                num_people = len(people)
+                white_shoe = arr_det[(np.where(arr_det[:,-1] == 1))]
+                # Loop through people 
+                for i in people:
+                    for j in white_shoe:
+                        # White Shoe Top Left X coordinate is smaller than People Top Left X Coordinate and Larger than People Btm Right Coordinate
+                        if j[0] > i[0] and j[0] < i[2]:
+                            if j[1] > i[1] and j[1] < i[3]:
+                                i[5] = 2.0
+                                num_violated += 1
+                                break
 
-    for i, det in enumerate(pred):  # detections per image
-        s, im0 = '', img0s
-        gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
-        num_people = 0
-        num_violated = 0
-        if len(det):
+                violate = people[(np.where(people[:,-1] == 2))]
+                violate_det = torch.from_numpy(np.array(violate))
+                relabel_det = torch.from_numpy(np.array(np.concatenate((people,white_shoe))))
 
-            # Rescale boxes from img_size to im0 size
-            det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
-            arr_det = det.cpu().numpy()
+                for c in relabel_det[:, -1].unique():
+                    n = (relabel_det[:, -1] == c).sum()  # detections per class
+                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+
+                if crop_flag and len(people) > 0:
+                    crop_flag = False
+                    for *xyxy,conf,cls in relabel_det:
+                        x,y,w,h=int(xyxy[0]), int(xyxy[1]), int(xyxy[2] - xyxy[0]), int(xyxy[3] - xyxy[1])                   
+                        img_ = im0.astype(np.uint8)
+                        crop_img=img_[y:y+ h, x:x + w]      
+                        crop_img = cv2.resize(crop_img,(480,480))
+
+                        dt = datetime.now()
+                        year = str(dt.year)
+                        month = str(dt.month).zfill(2)
+                        day = str(dt.day).zfill(2)
+                        image_path = setting["image_file"]
+                        image_dir = os.path.join(image_path, year, month, day)
+                        if not os.path.exists(image_dir):
+                            os.makedirs(image_dir)
+                        str_dt = dt.strftime("%d%m%Y%H%M%S%f")[:-4]
+                        #!!rescale image !!!
+                        filename=f'{str_dt}.png'
+                        filepath=os.path.join(image_dir, filename)
+                        cv2.imwrite(filepath, crop_img) 
+
+                # Write results
+                for *xyxy, conf, cls in reversed(relabel_det):
+                    label = f'{names[int(cls)]} {conf:.2f}'
+                    plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
+
+            text1 = "People Detected: {}".format(num_people)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale = 0.5
+            thickness = 2
+            text_size1, _ = cv2.getTextSize(text1,font,font_scale,thickness)
+            text_x1 = im0.shape[1] - text_size1[0] - 10  # 10 pixels from the right edge
+            text_y1 = text_size1[1] + 10
+
+            text2 = "Violated Detected: {}".format(num_violated)
+            text_size2,_ = cv2.getTextSize(text2,font,font_scale,thickness)
+            text_x2 = im0.shape[1] - text_size2[0] - 10  # 10 pixels from the right edge
+            text_y2 = text_y1 + text_size1[1] + 10
+            cv2.putText(im0,text1, (text_x1, text_y1), font, font_scale, (0, 255, 0), thickness)
+            cv2.putText(im0,text2, (text_x2, text_y2), font, font_scale, (0, 0,255), thickness)
             
-            # Get People and White Shoe Array
-            people = arr_det[(np.where(arr_det[:,-1] == 0))]
-            num_people = len(people)
-            white_shoe = arr_det[(np.where(arr_det[:,-1] == 1))]
-            # Loop through people 
-            for i in people:
-                for j in white_shoe:
-                    # White Shoe Top Left X coordinate is smaller than People Top Left X Coordinate and Larger than People Btm Right Coordinate
-                    if j[0] > i[0] and j[0] < i[2]:
-                        if j[1] > i[1] and j[1] < i[3]:
-                            i[5] = 2.0
-                            num_violated += 1
-                            break
-
-            relabel_det = torch.from_numpy(np.array(np.concatenate((people,white_shoe))))
-
-            for c in relabel_det[:, -1].unique():
-                n = (relabel_det[:, -1] == c).sum()  # detections per class
-                s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-
-            # Write results
-            for *xyxy, conf, cls in reversed(relabel_det):
-                label = f'{names[int(cls)]} {conf:.2f}'
-                plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
-
-        text1 = "People Detected: {}".format(num_people)
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.5
-        thickness = 2
-        text_size1, _ = cv2.getTextSize(text1,font,font_scale,thickness)
-        text_x1 = im0.shape[1] - text_size1[0] - 10  # 10 pixels from the right edge
-        text_y1 = text_size1[1] + 10
-
-        text2 = "Violated Detected: {}".format(num_violated)
-        text_size2,_ = cv2.getTextSize(text2,font,font_scale,thickness)
-        text_x2 = im0.shape[1] - text_size2[0] - 10  # 10 pixels from the right edge
-        text_y2 = text_y1 + text_size1[1] + 10
-
-        cv2.putText(im0, text1, (text_x1, text_y1), font, font_scale, (0, 255, 0), thickness)
-        cv2.putText(im0,text2, (text_x2, text_y2), font, font_scale, (0, 0,255), thickness)
-
-        # currentTime = time.time()
-        # print(currentTime)
-        # fps = 1/(currentTime-startTime)
-        # startTime = currentTime
-        # cv2.putText(im0,"FPS: " + str(int(fps)), (20,70), cv2.FONT_HERSHEY_PLAIN,2,(0,255,0),(2))
-                    
-    return im0
-
+        return im0
+    
 def gen_frames():
-    count=0
+    global crop_flag,last_crop_time
     while True:
-        success,frame = cap.read()
-        if not success:
-            break
-        else:
-            count +=1
-            if count % 6 == 0:
-                result = detect(frame)
-                ret,buffer = cv2.imencode('.png',result)
+        success,frame = camera.read()
+        if success:
+            current_time = time.time()
+            if current_time - last_crop_time >= 60:
+                crop_flag = True
+                last_crop_time = current_time
+            frame = detect(frame)
+            try:
+                ret, buffer = cv2.imencode('.jpg', frame)
                 frame = buffer.tobytes()
-                count=0
-            # else:
-            #     ret,buffer = cv2.imencode('.png',frame)
-            #     frame = buffer.tobytes()
                 yield (b'--frame\r\n'
-                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            except Exception as e:
+                pass
+        else:
+            pass
 
 class Streaming(Resource):
     def get(self):
-        return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-        
-    
-    
+        return Response(gen_frames(),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')

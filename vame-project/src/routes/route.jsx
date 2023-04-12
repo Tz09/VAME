@@ -32,7 +32,7 @@ const router = createBrowserRouter(
           try{
             const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
             if(resp.status == 200){
-              const resp2 = await axios.get(`${API_URL}/access`,{withCredentials: true});
+              const resp2 = await axios.get(`${API_URL}/admin`,{withCredentials: true});
               if(resp2.data["message"] != 'True'){
                 throw redirect("/");
               }
@@ -43,7 +43,21 @@ const router = createBrowserRouter(
           return null;
         }}
         element={<AccountManagementPage/>}/>
-      <Route path="/dashboard" element={<DashboardPage/>}></Route>
+      <Route path="/dashboard" 
+        loader = {async() =>{
+          try{
+            const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
+            if(resp.status == 200){
+              const resp2 = await axios.get(`${API_URL}/access`,{withCredentials: true});
+              if(resp2.data["message"] != 'True'){
+                throw redirect("/");
+              }
+            }
+          }catch(error){
+            throw redirect("/")
+          }
+          return null;
+        }} element={<DashboardPage/>}></Route>
       <Route path="*" element={<ErrorPage/>}/>
     </Route>
     )
