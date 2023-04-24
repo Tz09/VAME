@@ -1,11 +1,9 @@
-import torch
 import yaml
 import os
 from flask import Flask
 from flask_restful import Api
 from server.service.flask_extension import bcrpyt,cors,session,ma
 from server.service.models import db,create_admin
-from server.ai.models.experimental import attempt_load
 
 with open('setting.yaml') as f:
     setting = yaml.safe_load(f)
@@ -41,15 +39,15 @@ def create_app():
     if not exist:
         os.mkdir(image_path)
         
-    # Add Url
-    from server.service import _state
-    from server.resource import interface
+    return app,api
 
-    for resource_name,*url in _state.URL:
-        _resource = getattr(interface,resource_name)
-        api.add_resource(_resource,*url)
+app,api = create_app()
 
-    return app
+# Add Url
+from server.service import _state
+from server.resource import interface
 
-app = create_app()
+for resource_name,*url in _state.URL:
+    _resource = getattr(interface,resource_name)
+    api.add_resource(_resource,*url)
 

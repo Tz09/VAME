@@ -1,5 +1,4 @@
 import yaml
-from flask_login import UserMixin
 from .flask_extension import db,bcrpyt
 
 with open('setting.yaml') as f:
@@ -14,6 +13,12 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean,nullable=False,default=False)
     analytic_page_access = db.Column(db.Boolean,nullable=False,default=True)
 
+class Image(db.Model):
+    __tablename__= "image"
+    id = db.Column(db.Integer,primary_key=True)
+    time = db.Column(db.TIMESTAMP, nullable=False)
+    img_paths = db.Column(db.ARRAY(db.String(255)), nullable=False)
+    
 # Set Admin Account
 def create_admin():
     admin_name = setting["admin_account"]

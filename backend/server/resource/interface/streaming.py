@@ -7,19 +7,21 @@ import numpy as np
 import torch.backends.cudnn as cudnn
 from datetime import datetime
 from flask_restful import Resource
-from flask import Response
-from numpy import random
+from flask import Response,request,jsonify
 from ai.models.experimental import attempt_load
 from ai.utils.general import check_img_size,non_max_suppression,scale_coords
 from ai.utils.datasets import letterbox
 from ai.utils.plots import plot_one_box
 from ai.utils.torch_utils import select_device
+from server.service.models import db,Image
+from server import app
 
 url = [('Streaming','/streaming')]
  
 with open('setting.yaml') as f:
     setting = yaml.safe_load(f)
 
+# Initialize the model and some variable for model
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 device = select_device(device)
 img_size = setting["ai"]["img_size"]
@@ -28,13 +30,16 @@ conf_thres = setting["ai"]["conf_thres"]
 model = attempt_load(setting["ai"]["weight_file"],map_location=device)
 stride = int(model.stride.max())
 imgsz = check_img_size(img_size, s=stride)  # check img_size
+image_path = setting["image_file"]
 
+# Initialize the camera and global variable
 camera = cv2.VideoCapture(0)
-global crop_flag,last_crop_time
-
+global crop_flag,last_crop_time,switch
 crop_flag = True
 last_crop_time = time.time()
+switch = 1
 
+# Prediction for each frame
 def detect(frame):
     global model
     global crop_flag
@@ -63,7 +68,10 @@ def detect(frame):
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
-
+            
+        old_img_w = old_img_h = img_size
+        old_img_b = 1
+            
         # Warmup
         if device.type != 'cpu' and (old_img_b != img.shape[0] or old_img_h != img.shape[2] or old_img_w != img.shape[3]):
             old_img_b = img.shape[0]
@@ -110,25 +118,34 @@ def detect(frame):
 
                 if crop_flag and len(people) > 0:
                     crop_flag = False
+                    count=1
+                    img_paths = []
+                    dt = datetime.now()
+                    year = str(dt.year)
+                    month = str(dt.month).zfill(2)
+                    day = str(dt.day).zfill(2)
+                    image_dir = os.path.join(image_path, year, month, day)
+                    if not os.path.exists(image_dir):
+                        os.makedirs(image_dir)
+                    str_dt = dt.strftime("%d%m%Y%H%M%S")
+
+                    #Afterward change to violate_det
                     for *xyxy,conf,cls in relabel_det:
                         x,y,w,h=int(xyxy[0]), int(xyxy[1]), int(xyxy[2] - xyxy[0]), int(xyxy[3] - xyxy[1])                   
                         img_ = im0.astype(np.uint8)
                         crop_img=img_[y:y+ h, x:x + w]      
                         crop_img = cv2.resize(crop_img,(480,480))
-
-                        dt = datetime.now()
-                        year = str(dt.year)
-                        month = str(dt.month).zfill(2)
-                        day = str(dt.day).zfill(2)
-                        image_path = setting["image_file"]
-                        image_dir = os.path.join(image_path, year, month, day)
-                        if not os.path.exists(image_dir):
-                            os.makedirs(image_dir)
-                        str_dt = dt.strftime("%d%m%Y%H%M%S%f")[:-4]
-                        #!!rescale image !!!
-                        filename=f'{str_dt}.png'
+                        filename=f'{str_dt}_{count}.png'
                         filepath=os.path.join(image_dir, filename)
-                        cv2.imwrite(filepath, crop_img) 
+                        filepath = filepath.replace('\\','/')
+                        cv2.imwrite(filepath, crop_img)
+                        img_paths.append(filepath)
+                        count+=1
+                    with app.app_context():
+                        # Store time and image_path into database
+                        new_image = Image(time=dt,img_paths=img_paths)
+                        db.session.add(new_image)
+                        db.session.commit()
 
                 # Write results
                 for *xyxy, conf, cls in reversed(relabel_det):
@@ -176,3 +193,16 @@ class Streaming(Resource):
     def get(self):
         return Response(gen_frames(),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
+    
+    def post(self):
+        global switch,camera
+        data = request.get_json()
+        if 'camera' in data:
+            if(switch==1):
+                switch=0
+                camera.release()
+                cv2.destroyAllWindows()
+            else:
+                camera = cv2.VideoCapture(0)
+                switch=1
+        return jsonify({'message': 'Variables updated'})

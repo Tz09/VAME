@@ -31,79 +31,6 @@ export default function AccountManagementPage() {
 
     const [adminName,setadminName] = React.useState('');
 
-    function handleSignupOpen(){
-        setSignupOpen(true);
-    }
-
-    function handleSignupClose(){
-        setSignupOpen(false);
-        setFormData({
-            username: "",
-            password: "",
-        });
-        setUsernameError("");
-        setPasswordError("");
-        setErrorMessage("");
-    };
-
-    function handlePasswordAppendOpen(row){
-        setRowUsername(`${row.getValue('username')}`)
-        setPasswordAppendOpen(true);
-    }
-
-    function handlePasswordAppendClose(){
-        setPasswordAppendOpen(false);
-        setRowUsername("");
-        setPasswordAppend("");
-        setPasswordError("");
-        setErrorMessage("");
-    }
-
-    function handlePasswordAppendAdminOpen(){
-        setPasswordAppendAdminOpen(true);
-    }
-    
-    function handlePasswordAppendAdminClose(){
-        setPasswordAppendAdminOpen(false);
-        setPasswordAppend("");
-        setPasswordError("");
-        setErrorMessage("");
-    }
-
-    React.useEffect(() =>{
-        axios.get(`${API_URL}/info`)
-        .then(response=>{
-            if(response.status == 200){
-                const tableData = response.data.map((item) => {{
-                    return {
-                        ...item,
-                        analytic_page_access: item.analytic_page_access ? "Allowed" : "Denied"
-                    }
-                }})
-                setData(tableData)
-            }
-        })
-        .catch(error => {
-                console.log(error)
-        })
-    },[])
-
-    React.useEffect(() => {
-        (async () => {
-          try {
-            const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
-            if(resp.status == 200){
-              const resp2 = await axios.get(`${API_URL}/admin`,{withCredentials: true});
-              if(resp2.data["message"] == 'True'){
-                setadminName(resp.data.username);
-              }
-            }
-          } catch (error) {
-            console.log(error)
-          }
-        })();
-      }, []);
-
     const columns = React.useMemo(
         () => [
             {
@@ -191,6 +118,79 @@ export default function AccountManagementPage() {
                 })
         },
     )
+
+    function handleSignupOpen(){
+        setSignupOpen(true);
+    }
+
+    function handleSignupClose(){
+        setSignupOpen(false);
+        setFormData({
+            username: "",
+            password: "",
+        });
+        setUsernameError("");
+        setPasswordError("");
+        setErrorMessage("");
+    };
+
+    function handlePasswordAppendOpen(row){
+        setRowUsername(`${row.getValue('username')}`)
+        setPasswordAppendOpen(true);
+    }
+
+    function handlePasswordAppendClose(){
+        setPasswordAppendOpen(false);
+        setRowUsername("");
+        setPasswordAppend("");
+        setPasswordError("");
+        setErrorMessage("");
+    }
+
+    function handlePasswordAppendAdminOpen(){
+        setPasswordAppendAdminOpen(true);
+    }
+    
+    function handlePasswordAppendAdminClose(){
+        setPasswordAppendAdminOpen(false);
+        setPasswordAppend("");
+        setPasswordError("");
+        setErrorMessage("");
+    }
+
+    React.useEffect(() =>{
+        axios.get(`${API_URL}/info`)
+        .then(response=>{
+            if(response.status == 200){
+                const tableData = response.data.map((item) => {{
+                    return {
+                        ...item,
+                        analytic_page_access: item.analytic_page_access ? "Allowed" : "Denied"
+                    }
+                }})
+                setData(tableData)
+            }
+        })
+        .catch(error => {
+                console.log(error)
+        })
+    },[])
+
+    React.useEffect(() => {
+        (async () => {
+          try {
+            const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
+            if(resp.status == 200){
+              const resp2 = await axios.get(`${API_URL}/admin`,{withCredentials: true});
+              if(resp2.data["message"] == 'True'){
+                setadminName(resp.data.username);
+              }
+            }
+          } catch (error) {
+            console.log(error)
+          }
+        })();
+      }, []);
 
     return (
         <>
