@@ -1,66 +1,94 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { API_URL } from '../../data/config';
 
-const BoundingBoxTool = () => {
-  const canvasRef = useRef(null);
-  const [startX, setStartX] = useState(null);
-  const [startY, setStartY] = useState(null);
-  const [endX, setEndX] = useState(null);
-  const [endY, setEndY] = useState(null);
-  const [isActive, setIsActive] = useState(false);
-
-  const drawBoundingBox = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    ctx.strokeStyle = 'red'; // <-- set the stroke style to red
-    ctx.beginPath();
-    ctx.rect(startX, startY, endX - startX, endY - startY);
-    ctx.stroke();
-  };
+function BoundedImage(props) {
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [boundingBoxCoords, setBoundingBoxCoords] = useState({});
 
   const handleMouseDown = (e) => {
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setStartX(x);
-    setStartY(y);
-    setIsActive(true);
+    if (isDrawing && e.buttons === 1) {
+      const x = e.nativeEvent.offsetX;
+      const y = e.nativeEvent.offsetY;
+      setBoundingBoxCoords({ x1: x, y1: y, x2: x, y2: y });
+    }
   };
 
   const handleMouseMove = (e) => {
-    if (!isActive) {
-      return;
+    if (isDrawing && boundingBoxCoords.x1 && boundingBoxCoords.y1 && e.buttons === 1) {
+      const x = e.nativeEvent.offsetX;
+      const y = e.nativeEvent.offsetY;
+      setBoundingBoxCoords({
+        ...boundingBoxCoords,
+        x2: x,
+        y2: y,
+      });
     }
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setEndX(x);
-    setEndY(y);
   };
 
-  const handleMouseUp = () => {
-    setIsActive(false);
+  const handleMouseUp = (e) => {
+    if (isDrawing && boundingBoxCoords.x1 && boundingBoxCoords.y1 && boundingBoxCoords.x2 && boundingBoxCoords.y2) {
+      console.log(boundingBoxCoords);
+    }
+  };
+
+  const handleStartDrawing = () => {
+    setIsDrawing(true);
+    setBoundingBoxCoords({});
+  };
+
+  const handleReset = () => {
+    setIsDrawing(false);
+    setBoundingBoxCoords({});
+  };
+
+  const setBoundingBox = () => {
+    let roi_coordinates = [boundingBoxCoords.x1,boundingBoxCoords.y1,boundingBoxCoords.x2,boundingBoxCoords.y2]
+    
+    axios.post(`${API_URL}/streaming`, { "roi": roi_coordinates }, { withCredentials: true })
+      .then(response => {
+        if (response.status == 200) {
+        }
+      })
+      .catch(error => {
+        console.log(error)
+    })
+  }
+
+  const boundingBoxStyle = {
+    position: 'absolute',
+    border: '2px solid red',
+    left: `${boundingBoxCoords.x1}px`,
+    top: `${boundingBoxCoords.y1}px`,
+    width: `${boundingBoxCoords.x2 - boundingBoxCoords.x1}px`,
+    height: `${boundingBoxCoords.y2 - boundingBoxCoords.y1}px`,
   };
 
   return (
-    <>
-      <canvas
-        ref={canvasRef}
+    <div style={{ position: 'relative' }}>
+      <img
+        src={props.src}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        style={isDrawing ? { cursor: 'crosshair' } : {}}
       />
-      <p>
-        {isActive
-          ? 'Click and drag to draw a bounding box.'
-          : startX !== null && startY !== null && endX !== null && endY !== null
-          ? `Bounding Box Coordinates: (${startX}, ${startY}), (${endX}, ${endY})`
-          : 'Click the "Start Drawing" button to begin.'}
-      </p>
-      {startX !== null && startY !== null && endX !== null && endY !== null && drawBoundingBox()}
-    </>
+      {isDrawing && boundingBoxCoords.x1 && boundingBoxCoords.y1 && boundingBoxCoords.x2 && boundingBoxCoords.y2 && (
+        <div style={boundingBoxStyle}></div>
+      )}
+      <div>
+        <button onClick={handleStartDrawing}>Draw Bounding Box</button>
+        <button onClick={handleReset}>Reset</button>
+        <button onClick={setBoundingBox}>Confirm</button>
+        {boundingBoxCoords.x1 && boundingBoxCoords.y1 && boundingBoxCoords.x2 && boundingBoxCoords.y2 && (
+          <div>
+            Current coordinates: x1={boundingBoxCoords.x1}, y1={boundingBoxCoords.y1}, x2={boundingBoxCoords.x2}, y2=
+            {boundingBoxCoords.y2}
+          </div>
+        )}
+      </div>
+    </div>
   );
-};
+}
 
-export default BoundingBoxTool;
+export default BoundedImage;

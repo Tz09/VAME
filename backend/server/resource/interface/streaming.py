@@ -13,8 +13,8 @@ from ai.utils.general import check_img_size,non_max_suppression,scale_coords
 from ai.utils.datasets import letterbox
 from ai.utils.plots import plot_one_box
 from ai.utils.torch_utils import select_device
-from server.service.models import db,Image
 from server import app
+from server.service.models import db,Image
 
 url = [('Streaming','/streaming')]
  
@@ -34,15 +34,17 @@ image_path = setting["image_file"]
 
 # Initialize the camera and global variable
 camera = cv2.VideoCapture(0)
-global crop_flag,last_crop_time,switch
+global crop_flag,last_crop_time,switch,roi
 crop_flag = True
 last_crop_time = time.time()
 switch = 1
+roi=[]
 
 # Prediction for each frame
 def detect(frame):
     global model
     global crop_flag
+    global roi
     with torch.no_grad():
         cudnn.benchmark = True
         imgsz = check_img_size(img_size, s=stride)  # check img_size
@@ -98,19 +100,43 @@ def detect(frame):
                 people = arr_det[(np.where(arr_det[:,-1] == 0))]
                 num_people = len(people)
                 white_shoe = arr_det[(np.where(arr_det[:,-1] == 1))]
-                # Loop through people 
-                for i in people:
-                    for j in white_shoe:
-                        # White Shoe Top Left X coordinate is smaller than People Top Left X Coordinate and Larger than People Btm Right Coordinate
-                        if j[0] > i[0] and j[0] < i[2]:
-                            if j[1] > i[1] and j[1] < i[3]:
-                                i[5] = 2.0
-                                num_violated += 1
-                                break
+                
+               # Loop through people 
+                # for i in people:
+                #     for j in white_shoe:
+                #         # White Shoe Top Left X coordinate is smaller than People Top Left X Coordinate and Larger than People Btm Right Coordinate
+                #         if j[0] > i[0] and j[0] < i[2]:
+                #             if j[1] > i[1] and j[1] < i[3]:
+                #                 # Change Label to Violated
+                #                 i[5] = 2.0
+                #                 num_violated += 1
+                #                 break 
 
-                violate = people[(np.where(people[:,-1] == 2))]
-                violate_det = torch.from_numpy(np.array(violate))
-                relabel_det = torch.from_numpy(np.array(np.concatenate((people,white_shoe))))
+                for i in range(len(people)):
+                    # find the indices of white shoes that violate the person's boundaries
+                    violated_indices = np.where((white_shoe[:, 0] > people[i, 0]) &
+                                                (white_shoe[:, 0] < people[i, 2]) &
+                                                (white_shoe[:, 1] > people[i, 1]) &
+                                                (white_shoe[:, 1] < people[i, 3]))[0]
+                    
+                    # update the label for the person if there are any violations
+                    if len(violated_indices) > 0:
+                        people[i,5] = 2.0
+                        num_violated += 1
+
+                if len(roi) > 0:
+                    roi = np.array(roi)
+                    inside_x = np.logical_and(people[:, 0] >= roi[0], people[:, 2] <= roi[2])
+                    inside_y = np.logical_and(people[:, 1] >= roi[1], people[:, 3] <= roi[3])
+                    inside_roi = np.logical_and(inside_x, inside_y)
+                    people_in_roi = people[inside_roi]
+                    people = people_in_roi
+                    relabel_det = torch.from_numpy(np.array(np.concatenate((people_in_roi,white_shoe))))
+                else:
+                    violate = people[(np.where(people[:,-1] == 2))]
+                    violate_det = torch.from_numpy(np.array(violate))
+                    # This relabel_det i change to people_in_roi
+                    relabel_det = torch.from_numpy(np.array(np.concatenate((people,white_shoe))))
 
                 for c in relabel_det[:, -1].unique():
                     n = (relabel_det[:, -1] == c).sum()  # detections per class
@@ -195,7 +221,7 @@ class Streaming(Resource):
                         mimetype='multipart/x-mixed-replace; boundary=frame')
     
     def post(self):
-        global switch,camera
+        global switch,camera,roi
         data = request.get_json()
         if 'camera' in data:
             if(switch==1):
@@ -205,4 +231,10 @@ class Streaming(Resource):
             else:
                 camera = cv2.VideoCapture(0)
                 switch=1
+        elif 'roi' in data:
+            roi_coordinates = request.json.get('roi')
+            roi = roi_coordinates
+            # Bounding Box Reset
+            if roi == [None,None,None,None]:
+                roi = []
         return jsonify({'message': 'Variables updated'})
