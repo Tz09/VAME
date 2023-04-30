@@ -12,6 +12,7 @@ export default function ImageModal(props){
         if(props.open){
             axios.post(`${API_URL}/dates`,{"date":props.date},{withCredentials: true})
             .then(response => {
+                console.log(response)
                 axios.post(`${API_URL}/image`,{"img_path":response.data},{withCredentials: true})
                 .then(response => {
                     props.setImages(response.data.images)
@@ -26,14 +27,14 @@ export default function ImageModal(props){
     
     return(
         <Dialog open={props.open} fullWidth maxWidth="lg">
-            <DialogTitle textAlign="center">Images</DialogTitle>
+            <DialogTitle textAlign="center">{props.date}</DialogTitle>
             <DialogContent>
             {!loading && 
             <div className="image-list">
                 {props.images.map((image, index) => (
                     <div className="image-wrapper" key={index}>
-                    <img src={`data:image/jpeg;base64,${image.data}`} alt={`Image ${index + 1}`} onError={onError} />
-                    <div className="image-index">{index + 1}</div>
+                        <img src={`data:image/jpeg;base64,${image.data}`} alt={`Image ${index + 1}`} onError={onError} />
+                        <div className="image-index">{image.time}</div>
                     </div>
                 ))}
             </div>

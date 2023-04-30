@@ -193,6 +193,8 @@ def detect(frame):
             cv2.putText(im0,text1, (text_x1, text_y1), font, font_scale, (0, 255, 0), thickness)
             cv2.putText(im0,text2, (text_x2, text_y2), font, font_scale, (0, 0,255), thickness)
             
+            if (len(roi) > 0):
+                cv2.rectangle(im0,(roi[0],roi[1]),(roi[2],roi[3]),(0,255,0),1)
         return im0
     
 def gen_frames():
