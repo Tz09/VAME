@@ -4,8 +4,7 @@
     align-items: center;
     display:flex;
     justify-content: center;
-    color:white;
-    background-color: #8BC6EC;
+    color:black;
     background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);
     font-family: 'Inter',sans-serif;
 }
@@ -13,15 +12,17 @@
 .login-form-container{
     display:flex;
     flex-direction: column;
-    padding:7rem;
-    border: 1px solid black;
+    padding:4rem 7rem 5rem 7rem;
     border-radius: 10px;
+    background-color: white;
+    overflow: hidden;
 }
 
 .login-label{
     text-align:left;
     padding:0.25rem 0;
-    font-weight: 600;
+    font-weight: 500;
+    font-family: "Poppins";
 }
 
 .login-input{
@@ -29,29 +30,33 @@
     padding: 1rem;
     border: none;
     border-radius: 10px;
+    font-family: "Poppins";
+    background-color:#e6e6e6;
 }
 
 .login-submit{
-    border:none;
-    background-color: white;
+    background-color: #57b846;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 25px;
     cursor: pointer;
-    color: rgb(100, 62, 62);
+    color: white;
     margin: 0.5rem 0;
     font-weight: bold;
-    font-family: 'Inter',sans-serif;
+    font-family: 'Montserrat';
+    text-transform: uppercase;
+    border: none;
+    transition: all .4s;
 }
 
-.login.header{
-    padding:0.5rem;
-    font-size: xx-large;
+.login-submit:hover{
+    background-color: #17152e;
 }
 
 .error-container{
     color: red;
     text-align: left;
     font-size: small;
+    font-family: "Poppins";
 }
 
 .password-container{
@@ -64,4 +69,13 @@
     position: absolute;
     color:black;
     margin: 10px;
+}
+
+.login-container img{
+    width: 200px;
+    align-self: center;
+}
+
+.login-form-container span{
+    cursor:pointer;
 }

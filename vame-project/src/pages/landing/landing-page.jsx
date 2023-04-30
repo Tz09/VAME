@@ -5,6 +5,7 @@ import React, { useState, useRef, useEffect } from "react";
 import TopNavBar from "../../components/top-navbar/top-navbar"
 import BoundedImage from '../../components/bouding-box/bounding-box';
 export default function LandingPage() {
+  
   const [loading, setLoading] = React.useState(true);
 
   const handleClick = async () => {

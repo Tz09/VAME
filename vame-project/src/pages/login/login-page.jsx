@@ -1,21 +1,24 @@
 import './login-page.css';
-import React from 'react';
-import axios from 'axios';
-import { API_URL } from '../../data/config';
+import React,{useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
+import Loader from '../../components/loader/loader';
+import post from '../../components/http/post';
+
 export default function LoginPage() {
     
-    const [formData,setFormData] = React.useState({
+    const [formData,setFormData] = useState({
         username: "",
         password: "",
     });
     
-    const [usernameError,setUsernameError] = React.useState('');
-    const [passwordError,setPasswordError] = React.useState('');
-    const [showPassword,setShowPassword] = React.useState(false);
-    const [errorMessage,setErrorMessage] = React.useState('');
+    const [usernameError,setUsernameError] = useState('');
+    const [passwordError,setPasswordError] = useState('');
+    const [showPassword,setShowPassword] = useState(false);
+    const [errorMessage,setErrorMessage] = useState('');
+    const [processing,setProcessing] = useState(false);
+
     const navigate = useNavigate();
-    
+
     function handleChange(event){
         setFormData(prevFormData => {
             const {name,value} = event.target
@@ -46,24 +49,23 @@ export default function LoginPage() {
         }
 
         if(isvalid){
-            axios.post(`${API_URL}/login`,formData,{withCredentials: true})
+            setProcessing(true);
+            post('login',formData)
                 .then(response=>{
                     if(response.status == 200){
+                        setFormData(({
+                            username: "",
+                            password: "",
+                        }))
                         navigate('/')
                     }
                 })
                 .catch(error => {
                     setErrorMessage(error.response.data['message']);
+                    setProcessing(false)
                 })
-
-            setFormData(({
-                username: "",
-                password: "",
-            }))
-
-            }
-            
-            setErrorMessage('')
+        }
+            setErrorMessage('');
     }
 
     function handleTogglePassword(){
@@ -73,7 +75,7 @@ export default function LoginPage() {
     return (
         <div className="login-container">
             <form className="login-form-container" onSubmit={handleSubmit}>
-                <h2 className="login-header">Login</h2>
+                <img src="./vame-logo.png"></img>
                 <label className="login-label">Username: </label>
                 <input 
                     type="text"
@@ -98,7 +100,8 @@ export default function LoginPage() {
                 </div>
                 {passwordError && <span className="error-container">{passwordError}</span>}
                 {errorMessage && <span className="error-container">{errorMessage}</span>}
-                <button type="submit" className="login-submit">Submit</button>
+                <button type="submit" className="login-submit">Login</button>
+                <Loader processing={processing}></Loader>
             </form>
         </div>
     );
