@@ -1,7 +1,7 @@
 import React from "react";
-import axios from 'axios';
 import { API_URL } from '../../data/config';
 import { Modal, Box, TextField, Button,Dialog,DialogTitle,DialogContent,Stack,DialogActions} from '@mui/material';
+import post from "../http/post";
 
 export default function PasswordAppendModal(props){
 
@@ -21,11 +21,8 @@ export default function PasswordAppendModal(props){
       }
 
       if(isvalid) {
-          axios.post(`${API_URL}/info`,
-          {"username":username,
-           "password":props.passwordappend
-          }
-          ,{withCredentials: true})
+          post('info',{"username":username,
+          "password":props.passwordappend})
           .then(response=>{
               if(response.status == 200){
                   alert(response.data['message'])

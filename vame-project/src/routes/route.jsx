@@ -7,6 +7,7 @@ import ErrorPage from '../pages/error/error-page';
 import LoginPage from '../pages/login/login-page';
 import AccountManagementPage from "../pages/account-management/account-management-page";
 import DashboardPage from "../pages/dashboard/dashboard-page";
+import get from "../components/http/get";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -19,7 +20,7 @@ const router = createBrowserRouter(
         path ="/"
         loader = {async() =>{
           try{
-            const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
+            await get('login');
           }catch(error){
             throw redirect("/login")
           }
@@ -30,13 +31,10 @@ const router = createBrowserRouter(
         path="/accountmanagement" 
         loader = {async() =>{
           try{
-            const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
-            if(resp.status == 200){
-              const resp2 = await axios.get(`${API_URL}/admin`,{withCredentials: true});
-              if(resp2.data["message"] != 'True'){
-                throw redirect("/");
-              }
-             }
+            const resp = await get('admin')
+            if (resp.data['message'] != 'True'){
+              throw redirect("/")
+            }
           }catch(error){
             throw redirect("/")
           }
@@ -46,12 +44,9 @@ const router = createBrowserRouter(
       <Route path="/dashboard" 
         loader = {async() =>{
           try{
-            const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
-            if(resp.status == 200){
-              const resp2 = await axios.get(`${API_URL}/access`,{withCredentials: true});
-              if(resp2.data["message"] != 'True'){
-                throw redirect("/");
-              }
+            const resp = await get('access')
+            if(resp.data['message'] != 'True'){
+              throw redirect("/");
             }
           }catch(error){
             throw redirect("/")

@@ -1,7 +1,7 @@
 import React from 'react';
-import axios from 'axios';
 import { API_URL } from '../../data/config';
 import { Modal, Box, TextField, Button,Dialog,DialogTitle,DialogContent,Stack,DialogActions} from '@mui/material';
+import post from '../http/post';
 
 export default function SignupModal(props) {
 
@@ -35,8 +35,8 @@ export default function SignupModal(props) {
         }
 
         if(isvalid){
-            axios.post(`${API_URL}/signup`,props.formData,{withCredentials: true})
-                .then(response=>{
+            post('signup',props.formData)
+            .then(response=>{
                     if(response.status == 200){
                         alert(response.data["message"])
                         window.location.href = "./accountmanagement"

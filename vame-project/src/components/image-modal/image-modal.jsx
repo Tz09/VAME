@@ -1,8 +1,8 @@
 import { Modal, Box, TextField, Button,Dialog,DialogTitle,DialogContent,Stack,DialogActions} from '@mui/material';
 import { useEffect,useState } from 'react';
 import { API_URL } from '../../data/config';
-import axios from 'axios';
-import "./image-modal.css"
+import "./image-modal.css";
+import post from '../http/post';
 
 export default function ImageModal(props){
 
@@ -10,10 +10,9 @@ export default function ImageModal(props){
 
     useEffect(() => {
         if(props.open){
-            axios.post(`${API_URL}/dates`,{"date":props.date},{withCredentials: true})
+            post('dates',{"date":props.date})
             .then(response => {
-                console.log(response)
-                axios.post(`${API_URL}/image`,{"img_path":response.data},{withCredentials: true})
+                post('image',{"img_path":response.data})
                 .then(response => {
                     props.setImages(response.data.images)
                     setLoading(false)

@@ -1,5 +1,5 @@
-.topnav {
-    background-color: #333;
+/* .top-nav {
+    background-color: #ccc;
     overflow: hidden;
     display: flex;
     justify-content: space-between;
@@ -7,6 +7,7 @@
     top: 0;
     left: 0;
     width: 100%;
+    height: 64px;
   }
   
 .logo img {
@@ -75,4 +76,32 @@ box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 
 .nav-section:hover {
   border-bottom: 2px solid #fff;
+}
+ */
+
+ .navbar{
+  background-color: #e3f2fd;
+ }
+
+.navbar-brand{
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+ .navbar-dark .nav-item .nav-link {
+  color: #fff;
+  cursor:pointer;
+}
+
+.navbar-dark .nav-item .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  border-radius: 0.25rem;
+  color: #fff;
+}
+
+strong.username{
+  padding:10px;
+  pointer-events: none;
+  font-weight: 700;
 }

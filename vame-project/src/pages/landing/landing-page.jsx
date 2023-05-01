@@ -23,9 +23,11 @@ export default function LandingPage() {
     <>
       <TopNavBar loading={loading} setLoading={setLoading} />
       {!loading &&
-        <div className="streaming-box">
-          <button onClick={handleClick}>Stop/Start</button>
-          <BoundedImage src="http://127.0.0.1:5000/streaming" />
+        <div className='container'>
+          <div className="streaming-box">
+            <button onClick={handleClick}>Stop/Start</button>
+            <BoundedImage src="http://127.0.0.1:5000/streaming" />
+          </div>
         </div>
       }
     </>

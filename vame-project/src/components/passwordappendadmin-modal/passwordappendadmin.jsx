@@ -1,14 +1,15 @@
 import React from "react";
-import axios from 'axios';
 import { API_URL } from '../../data/config';
 import { Modal, Box, TextField, Button,Dialog,DialogTitle,DialogContent,Stack,DialogActions} from '@mui/material';
+import post from "../http/post";
+import get from "../http/get";
 
 export default function PasswordAppendAdminModal(props){
 
     const username = props.adminName;
 
     function logOut(){
-        axios.get(`${API_URL}/logout`,{withCredentials: true})
+        get('logout')
         .then(response => {
           if(response.status == 200)
             window.location.href = "./login";
@@ -32,11 +33,7 @@ export default function PasswordAppendAdminModal(props){
       }
 
       if(isvalid) {
-          axios.post(`${API_URL}/info`,
-          {"username":username,
-           "password":props.passwordappend
-          }
-          ,{withCredentials: true})
+          post('info',{"username":username,"password":props.passwordappend})
           .then(response=>{
               if(response.status == 200){
                   logOut()

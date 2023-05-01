@@ -6,6 +6,7 @@ import MaterialReactTable from "material-react-table";
 import { Box,Button,Dialog,DialogActions,DialogContent,DialogTitle,IconButton,MenuItem,Stack,TextField,Tooltip} from '@mui/material';
 import { Delete, Edit,ChangeCircle,Preview} from '@mui/icons-material';
 import ImageModal from '../../components/image-modal/image-modal';
+import get from '../../components/http/get';
 
 export default function DashboardPage() {
     const [loading,setLoading] = React.useState(true);
@@ -26,7 +27,7 @@ export default function DashboardPage() {
     }
 
     useEffect(() => {
-      axios.get(`${API_URL}/dates`)
+      get('dates')
       .then(response=>{
           if(response.status == 200){
               const tableData = response.data.map((item) => {{
@@ -56,37 +57,44 @@ export default function DashboardPage() {
     return (
         <>
             <TopNavBar loading={loading} setLoading={setLoading}/>
-            {!loading && <MaterialReactTable
-              columns={columns}
-              data={data}
-              enableRowActions
-              enableColumnFilters={false}
-              initialState={{
-                sorting:[
-                  {id:'date',desc:true}
-                ]
-              }}
-              displayColumnDefOptions={{
-                'mrt-row-actions': {
-                muiTableHeadCellProps: {
-                    align: 'center',
-                },
-                muiTableBodyCellProps:{
-                    align: 'center',
-                },
-                size: 200,
-                },
-              }}
-              renderRowActions={({ row, table }) => (
-                <Box>
-                  <Tooltip arrow placement="right" title="Show Images">
-                    <IconButton onClick={() => handleImageOpen(row)}>
-                      <Preview />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              )}
-            />}
+            {!loading && 
+            <div className='container'>
+              <MaterialReactTable
+                columns={columns}
+                data={data}
+                enableRowActions
+                enableColumnFilters={false}
+                initialState={{
+                  sorting:[
+                    {id:'date',desc:true}
+                  ],
+                  density:'comfortable'
+                }}
+                muiTablePaginationProps={{
+                  rowsPerPageOptions: [5],
+                }}
+                displayColumnDefOptions={{
+                  'mrt-row-actions': {
+                  muiTableHeadCellProps: {
+                      align: 'center',
+                  },
+                  muiTableBodyCellProps:{
+                      align: 'center',
+                  },
+                  size: 200,
+                  },
+                }}
+                renderRowActions={({ row, table }) => (
+                  <Box>
+                    <Tooltip arrow placement="right" title="Show Images">
+                      <IconButton onClick={() => handleImageOpen(row)}>
+                        <Preview />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                )}
+              />
+            </div>}
             <ImageModal
               open={imageopen}
               onClose={handleImageClose}

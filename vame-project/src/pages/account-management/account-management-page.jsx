@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState,useEffect,useMemo,useCallback} from "react";
 import axios from "axios";
 import { API_URL } from "../../data/config";
 import TopNavBar from "../../components/top-navbar/top-navbar";
@@ -8,30 +8,33 @@ import { Delete, Edit,ChangeCircle } from '@mui/icons-material';
 import SignupModal from "../../components/signup-modal/signup-modal";
 import PasswordAppendModal from "../../components/passwordappend-modal/passwordappend-modal";
 import PasswordAppendAdminModal from "../../components/passwordappendadmin-modal/passwordappendadmin";
+import get from "../../components/http/get";
+import _delete from "../../components/http/delete";
+import put from "../../components/http/put";
 
 export default function AccountManagementPage() {
 
-    const [loading,setLoading] = React.useState(true);
-    const [data,setData] = React.useState([]);
-    const [signupopen,setSignupOpen] = React.useState(false);
-    const [passwordappendopen,setPasswordAppendOpen] = React.useState(false);
-    const [paswordappendadminopen,setPasswordAppendAdminOpen] = React.useState(false);
+    const [loading,setLoading] = useState(true);
+    const [data,setData] = useState([]);
+    const [signupopen,setSignupOpen] = useState(false);
+    const [passwordappendopen,setPasswordAppendOpen] = useState(false);
+    const [paswordappendadminopen,setPasswordAppendAdminOpen] = useState(false);
 
-    const [formData,setFormData] = React.useState({
+    const [formData,setFormData] = useState({
         username: "",
         password: "",
     });
 
-    const [usernameError,setUsernameError] = React.useState('');
-    const [passwordError,setPasswordError] = React.useState('');
-    const [errorMessage,setErrorMessage] = React.useState('');
+    const [usernameError,setUsernameError] = useState('');
+    const [passwordError,setPasswordError] = useState('');
+    const [errorMessage,setErrorMessage] = useState('');
 
-    const [passwordappend,setPasswordAppend] = React.useState('');
-    const [rowUsername,setRowUsername] = React.useState('');
+    const [passwordappend,setPasswordAppend] = useState('');
+    const [rowUsername, setRowUsername] = useState('');
 
-    const [adminName,setadminName] = React.useState('');
+    const [adminName,setadminName] = useState('');
 
-    const columns = React.useMemo(
+    const columns = useMemo(
         () => [
             {
                 header: 'Username',
@@ -44,7 +47,7 @@ export default function AccountManagementPage() {
         [],
     );
 
-    const handleDeleteRow = React.useCallback(
+    const handleDeleteRow = useCallback(
         (row) => {
           if (
             !confirm(`Are you sure you want to delete ${row.getValue('username')}?`)
@@ -52,7 +55,7 @@ export default function AccountManagementPage() {
             return;
           }
           const payload = {"username":`${row.getValue('username')}`}
-          axios.delete(`${API_URL}/info`,{ data: payload },{withCredentials: true})
+          _delete('info',payload)
           .then(response=>{
             if(response.status == 200){
                 alert(response.data['message']);
@@ -69,7 +72,7 @@ export default function AccountManagementPage() {
       );
 
     
-    const handleChangeAccess = React.useCallback(
+    const handleChangeAccess = useCallback(
         (row) => {
             if (
                 !confirm(`Are you sure you want to change access ${row.getValue('username')}?`)
@@ -77,11 +80,11 @@ export default function AccountManagementPage() {
                 return;
               }
             const payload = {"username":`${row.getValue('username')}`}
-            axios.put(`${API_URL}/access`,payload,{withCredentials: true})
+            put('access',payload)
             .then(response=>{
                 if(response.status == 200){
                     alert(response.data['message']);
-                    axios.get(`${API_URL}/info`)
+                    get('info')
                     .then(response=>{
                         if(response.status == 200){
                             const tableData = response.data.map((item) => {{
@@ -100,7 +103,7 @@ export default function AccountManagementPage() {
                 })
                 .catch(error => {
                     alert(error.response.data['message']);
-                    axios.get(`${API_URL}/info`)
+                    get('info')
                     .then(response=>{
                         if(response.status == 200){
                             const tableData = response.data.map((item) => {{
@@ -158,8 +161,8 @@ export default function AccountManagementPage() {
         setErrorMessage("");
     }
 
-    React.useEffect(() =>{
-        axios.get(`${API_URL}/info`)
+    useEffect(() =>{
+        get('info')
         .then(response=>{
             if(response.status == 200){
                 const tableData = response.data.map((item) => {{
@@ -176,15 +179,12 @@ export default function AccountManagementPage() {
         })
     },[])
 
-    React.useEffect(() => {
+    useEffect(() => {
         (async () => {
           try {
-            const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
-            if(resp.status == 200){
-              const resp2 = await axios.get(`${API_URL}/admin`,{withCredentials: true});
-              if(resp2.data["message"] == 'True'){
-                setadminName(resp.data.username);
-              }
+            const resp = await get('admin');
+            if(resp.data["message"] == 'True'){
+            setadminName(resp.data.username);
             }
           } catch (error) {
             console.log(error)
@@ -198,94 +198,101 @@ export default function AccountManagementPage() {
                 loading={loading} 
                 setLoading={setLoading}
             />
-            {!loading && <MaterialReactTable
-                columns={columns}
-                data={data}
-                enableRowActions
-                enableColumnFilters={false}
-                displayColumnDefOptions={{
-                    'mrt-row-actions': {
-                    muiTableHeadCellProps: {
-                        align: 'center',
-                    },
-                    muiTableBodyCellProps:{
-                        align: 'center',
-                    },
-                    size: 200,
-                    },
-                }}
-                renderRowActions={({ row, table }) => (
-                    <Box>
-                      <Tooltip arrow placement="right" title="Change Password">
-                        <IconButton onClick={() => handlePasswordAppendOpen(row)}>
-                          <Edit />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip arrow placement="right" title="Delete">
-                        <IconButton color="error" onClick={() => handleDeleteRow(row)}>
-                          <Delete />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip arrow placement="right" title="Change Access">
-                        <IconButton onClick={() => handleChangeAccess(row)}>
-                          <ChangeCircle />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                )}
-                renderTopToolbarCustomActions={() => (
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <Button
-                        color="error"
-                        onClick={() => handleSignupOpen(true)}
-                        variant="contained"
-                        >
-                        Create New Account
-                        </Button>
-                        <Button
-                        color="error"
-                        onClick={() => handlePasswordAppendAdminOpen(true)}
-                        variant="contained"
-                        >
-                            Change Admin Password
-                        </Button>
-                    </div>
-                )}
-            />}
-            <SignupModal
-                open={signupopen} 
-                onClose={handleSignupClose} 
-                formData={formData} 
-                setFormData={setFormData} 
-                errorMessage={errorMessage} 
-                setErrorMessage={setErrorMessage} 
-                usernameError={usernameError} 
-                setUsernameError={setUsernameError}  
-                passwordError={passwordError} 
-                setPasswordError={setPasswordError} 
-            />
-            <PasswordAppendModal
-                open={passwordappendopen}
-                onClose={handlePasswordAppendClose}
-                rowUsername={rowUsername}
-                passwordappend={passwordappend}
-                setPasswordAppend={setPasswordAppend}
-                errorMessage={errorMessage} 
-                setErrorMessage={setErrorMessage} 
-                passwordError={passwordError} 
-                setPasswordError={setPasswordError} 
-            />
-            <PasswordAppendAdminModal
-                open={paswordappendadminopen}
-                onClose={handlePasswordAppendAdminClose}
-                adminName={adminName}
-                passwordappend={passwordappend}
-                setPasswordAppend={setPasswordAppend}
-                errorMessage={errorMessage} 
-                setErrorMessage={setErrorMessage} 
-                passwordError={passwordError} 
-                setPasswordError={setPasswordError} 
-            />
+            {!loading && 
+            <div className="container">
+                <MaterialReactTable
+                    columns={columns}
+                    data={data}
+                    enableRowActions
+                    enableColumnFilters={false}
+                    positionActionsColumn="last"
+                    displayColumnDefOptions={{
+                        'mrt-row-actions': {
+                        muiTableHeadCellProps: {
+                            align: 'center',
+                        },
+                        muiTableBodyCellProps:{
+                            align: 'center',
+                        },
+                        size: 200,
+                        },
+                    }}
+                    muiTablePaginationProps={{
+                        rowsPerPageOptions: [5,10],
+                    }}
+                    renderRowActions={({ row, table }) => (
+                        <Box>
+                        <Tooltip arrow placement="right" title="Change Password">
+                            <IconButton onClick={() => handlePasswordAppendOpen(row)}>
+                            <Edit />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip arrow placement="right" title="Delete">
+                            <IconButton color="error" onClick={() => handleDeleteRow(row)}>
+                            <Delete />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip arrow placement="right" title="Change Access">
+                            <IconButton onClick={() => handleChangeAccess(row)}>
+                            <ChangeCircle />
+                            </IconButton>
+                        </Tooltip>
+                        </Box>
+                    )}
+                    renderTopToolbarCustomActions={() => (
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <Button
+                            color="error"
+                            onClick={() => handleSignupOpen(true)}
+                            variant="contained"
+                            >
+                            Create New Account
+                            </Button>
+                            <Button
+                            color="error"
+                            onClick={() => handlePasswordAppendAdminOpen(true)}
+                            variant="contained"
+                            >
+                                Change Admin Password
+                            </Button>
+                        </div>
+                    )}
+                />
+                </div>}
+                <SignupModal
+                    open={signupopen} 
+                    onClose={handleSignupClose} 
+                    formData={formData} 
+                    setFormData={setFormData} 
+                    errorMessage={errorMessage} 
+                    setErrorMessage={setErrorMessage} 
+                    usernameError={usernameError} 
+                    setUsernameError={setUsernameError}  
+                    passwordError={passwordError} 
+                    setPasswordError={setPasswordError} 
+                />
+                <PasswordAppendModal
+                    open={passwordappendopen}
+                    onClose={handlePasswordAppendClose}
+                    rowUsername={rowUsername}
+                    passwordappend={passwordappend}
+                    setPasswordAppend={setPasswordAppend}
+                    errorMessage={errorMessage} 
+                    setErrorMessage={setErrorMessage} 
+                    passwordError={passwordError} 
+                    setPasswordError={setPasswordError} 
+                />
+                <PasswordAppendAdminModal
+                    open={paswordappendadminopen}
+                    onClose={handlePasswordAppendAdminClose}
+                    adminName={adminName}
+                    passwordappend={passwordappend}
+                    setPasswordAppend={setPasswordAppend}
+                    errorMessage={errorMessage} 
+                    setErrorMessage={setErrorMessage} 
+                    passwordError={passwordError} 
+                    setPasswordError={setPasswordError} 
+                />
         </>
     );
   }

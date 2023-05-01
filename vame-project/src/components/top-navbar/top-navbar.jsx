@@ -1,51 +1,49 @@
 import './top-navbar.css'
-import React from 'react'
+import React,{useEffect,useState} from 'react'
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../data/config';
+import get from '../http/get';
 
 export default function TopNavBar(props) {
 
-    const [user,setUser] = React.useState("");
-    const [admin,setAdmin] = React.useState(false);
-    const [access,setAccess] = React.useState(false);
+    const [user,setUser] = useState("");
+    const [admin,setAdmin] = useState(false);
+    const [access,setAccess] = useState(false);
     const navigate = useNavigate();
     
     function toggleButtons(){
       setShowButtons(!showButtons);
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
       (async () => {
         try {
-          const resp = await axios.get(`${API_URL}/login`,{withCredentials: true});
-          if(resp.status == 200){
-            setUser(resp.data);
-            const resp2 = await axios.get(`${API_URL}/admin`,{withCredentials: true});
-            const resp3 = await axios.get(`${API_URL}/access`,{withCredentials:true});
-            
-            if(resp2.data["message"] == 'True'){
-              setAdmin(true);
-            }else{
-              setAdmin(false);
-            }
-
-            if(resp3.data["message"] == 'True'){
-              setAccess(true);
-            }else{
-              setAccess(false);
-            }
+          const login_resp = await get('login');
+          const admin_resp = await get('admin');
+          const access_resp = await get('access');
+          setUser(login_resp.data)
+          if(admin_resp.data["message"] == 'True'){
+            setAdmin(true);
+          }else{
+            setAdmin(false);
           }
+
+          if(access_resp.data["message"] == 'True'){
+            setAccess(true);
+          }else{
+            setAccess(false);
+          }
+          
           props.setLoading(false)
         } catch (error) {
           console.log(error)
         }
       })();
     }, []);
-
+    
     function logOut(){
-        axios.get(`${API_URL}/logout`,{withCredentials: true})
-        .then(response => {
+        get('logout').then(response => {
           if(response.status == 200)
             navigate('/login')
         }).catch(error => {
@@ -53,7 +51,7 @@ export default function TopNavBar(props) {
         })
     }
     
-    function navigateaccountManagement(){
+    function navigateAccountManagement(){
       navigate('/accountmanagement')
     }
 
@@ -68,26 +66,38 @@ export default function TopNavBar(props) {
     if(props.loading == false){
       return (
         <>
-          <div className="topnav">
-            <a href="/" className="logo">
-              <img src={"/vame-logo.png"} alt="Logo" />
-            </a>
-            <div className="username">{user.username}</div>
-            {admin && <button className='button' onClick={navigateaccountManagement}>Account Management</button>}
-            <button className="button" onClick={logOut}>Log Out</button>
-          </div>
-          {access && 
-            <div className="selection-nav">
-              <div className="nav-section" onClick={navigateMonitoring}>
-                Monitoring 
+          <nav className="navbar navbar-expand navbar-dark bg-dark">
+              <div className="container">
+                  <a className="navbar-brand" href="./"><img src="/vame-logo-transparent.png" height="50px"className="img-responsive" id="logo"/>
+                    <strong className="username">{user.username}</strong>
+                  </a>
+                  <div className="navbar-dark"> 
+                    <ul className="navbar-nav ml-auto">
+                        <li className="nav-item">
+                            <a className="nav-link" onClick={navigateMonitoring}>
+                              Monitoring
+                            </a>
+                        </li>
+                        {access && <li className="nav-item">
+                            <a className="nav-link" onClick={navigateDashboard}>
+                              Dashboard
+                            </a>
+                        </li>}
+                        {admin && <li className="nav-item">
+                            <a className="nav-link" onClick={navigateAccountManagement}>
+                              Account Management
+                            </a>
+                        </li>}
+                        <li className="nav-item">
+                            <a className="nav-link" onClick={logOut}>
+                              Log Out
+                            </a>
+                        </li>
+                    </ul>
+                  </div>
               </div>
-              <div className="nav-section" onClick={navigateDashboard}>
-                Dashboard 
-              </div>
-            </div>
-          }
-
-          </>
+          </nav>
+        </>
       );
     }
   }
