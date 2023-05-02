@@ -90,7 +90,7 @@ export default function TopNavBar(props) {
                         </li>}
                         <li className="nav-item">
                             <a className="nav-link" onClick={logOut}>
-                              Log Out
+                              <i className="bi bi-box-arrow-left"> Log Out</i>
                             </a>
                         </li>
                     </ul>

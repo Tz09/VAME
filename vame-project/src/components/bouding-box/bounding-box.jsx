@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { API_URL } from '../../data/config';
+import post from '../http/post';
+import './bounding-box.css'
 
 function BoundedImage(props) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [boundingBoxCoords, setBoundingBoxCoords] = useState({});
+  const [imageLoaded, setImageLoaded] = useState(true);
+
+  // const handleImageError = () => {
+  //   setImageSrc('./missing-image.png');
+  // };
 
   const handleMouseDown = (e) => {
     if (isDrawing && e.buttons === 1) {
@@ -44,15 +50,23 @@ function BoundedImage(props) {
 
   const setBoundingBox = () => {
     let roi_coordinates = [boundingBoxCoords.x1,boundingBoxCoords.y1,boundingBoxCoords.x2,boundingBoxCoords.y2]
-    
-    axios.post(`${API_URL}/streaming`, { "roi": roi_coordinates }, { withCredentials: true })
-      .then(response => {
+  
+    post('streaming',{ "roi": roi_coordinates })
+    .then(response => {
         if (response.status == 200) {
         }
       })
       .catch(error => {
         console.log(error)
     })
+  }
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  }
+
+  const handleImageError = () => {
+    setImageLoaded(false);
   }
 
   const boundingBoxStyle = {
@@ -66,26 +80,35 @@ function BoundedImage(props) {
 
   return (
     <div style={{ position: 'relative' }}>
-      <img
-        src={props.src}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        style={isDrawing ? { cursor: 'crosshair' } : {}}
-      />
+      {imageLoaded ? (
+          <img
+            src={props.src}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+            style={isDrawing ? { cursor: 'crosshair' } : {}}
+          />
+      ) : (
+          <img src="./missing-video.png" />
+      )
+      }
       {isDrawing && boundingBoxCoords.x1 && boundingBoxCoords.y1 && boundingBoxCoords.x2 && boundingBoxCoords.y2 && (
         <div style={boundingBoxStyle}></div>
       )}
       <div>
-        <button onClick={handleStartDrawing}>Draw Bounding Box</button>
-        <button onClick={handleReset}>Reset</button>
-        <button onClick={setBoundingBox}>Confirm</button>
-        {boundingBoxCoords.x1 && boundingBoxCoords.y1 && boundingBoxCoords.x2 && boundingBoxCoords.y2 && (
+        <div className='button-bounding'>
+        <button type="button" className="btn btn-primary btn-lg" onClick={handleStartDrawing} disabled={!imageLoaded}>Draw Bounding Box</button>
+        <button type="button" className="btn btn-primary btn-lg" onClick={handleReset} disabled={!imageLoaded}>Reset</button>
+        <button type="button" className="btn btn-primary btn-lg" onClick={setBoundingBox} disabled={!imageLoaded}>Confirm</button>
+        {/* {boundingBoxCoords.x1 && boundingBoxCoords.y1 && boundingBoxCoords.x2 && boundingBoxCoords.y2 && (
           <div>
             Current coordinates: x1={boundingBoxCoords.x1}, y1={boundingBoxCoords.y1}, x2={boundingBoxCoords.x2}, y2=
             {boundingBoxCoords.y2}
           </div>
-        )}
+        )} */}
+        </div>
       </div>
     </div>
   );

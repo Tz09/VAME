@@ -1,0 +1,14 @@
+.button-bounding{
+    padding-top: 5px;
+    display: flex;
+    justify-content: center;
+}
+
+.button-bounding button {
+    margin: 0 10px;
+}
+
+.streaming{
+    display: flex;
+    justify-content: center;
+}

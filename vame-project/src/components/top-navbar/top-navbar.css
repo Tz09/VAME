@@ -79,9 +79,9 @@ box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
  */
 
- .navbar{
+.navbar{
   background-color: #e3f2fd;
- }
+}
 
 .navbar-brand{
   display: flex;
@@ -104,4 +104,8 @@ strong.username{
   padding:10px;
   pointer-events: none;
   font-weight: 700;
+}
+
+i{
+  font-style: normal;
 }

@@ -64,6 +64,7 @@ export default function DashboardPage() {
                 data={data}
                 enableRowActions
                 enableColumnFilters={false}
+                positionActionsColumn="last"
                 initialState={{
                   sorting:[
                     {id:'date',desc:true}

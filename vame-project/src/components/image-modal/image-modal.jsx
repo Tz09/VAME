@@ -21,7 +21,7 @@ export default function ImageModal(props){
     },[props.open])
 
     const onError = (event) => {
-        event.target.src = '/missing image.png'; // Set the source to the error image
+        event.target.src = '/missing-image.png'; // Set the source to the error image
     };
     
     return(

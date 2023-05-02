@@ -48,7 +48,7 @@ def detect(frame):
     with torch.no_grad():
         cudnn.benchmark = True
         imgsz = check_img_size(img_size, s=stride)  # check img_size
-        half = device.type != 'cpu'
+        half = False
 
         # Run inference
         if device.type != 'cpu':
