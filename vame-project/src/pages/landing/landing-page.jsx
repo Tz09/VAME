@@ -27,10 +27,12 @@ export default function LandingPage() {
       {!loading &&
         <div className='container'>
           <div className="streaming-box">
-            <button type="button" className="btn btn-primary btn-lg" onClick={handleClick}>Stop/Start</button>
-            <BoundedImage 
-              src="http://127.0.0.1:5000/streaming"
-            />
+            <button type="button" className="btn btn-primary btn-medium" onClick={handleClick}>Stop/Start</button>
+            <div className='streaming-image'>
+              <BoundedImage 
+                src="http://127.0.0.1:5000/streaming"
+              />
+            </div>
           </div>
         </div>
       }

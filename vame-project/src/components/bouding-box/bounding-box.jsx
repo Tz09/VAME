@@ -6,11 +6,6 @@ import './bounding-box.css'
 function BoundedImage(props) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [boundingBoxCoords, setBoundingBoxCoords] = useState({});
-  const [imageLoaded, setImageLoaded] = useState(true);
-
-  // const handleImageError = () => {
-  //   setImageSrc('./missing-image.png');
-  // };
 
   const handleMouseDown = (e) => {
     if (isDrawing && e.buttons === 1) {
@@ -61,14 +56,6 @@ function BoundedImage(props) {
     })
   }
 
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-  }
-
-  const handleImageError = () => {
-    setImageLoaded(false);
-  }
-
   const boundingBoxStyle = {
     position: 'absolute',
     border: '2px solid red',
@@ -80,28 +67,24 @@ function BoundedImage(props) {
 
   return (
     <div style={{ position: 'relative' }}>
-      {imageLoaded ? (
-          <img
-            src={props.src}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            style={isDrawing ? { cursor: 'crosshair' } : {}}
-          />
-      ) : (
-          <img src="./missing-video.png" />
-      )
-      }
+      <img
+        src={props.src}
+        onError={(e) => {
+          e.target.src = '/missing-video.png';;
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        style={isDrawing ? { cursor: 'crosshair' } : {}}
+      />
       {isDrawing && boundingBoxCoords.x1 && boundingBoxCoords.y1 && boundingBoxCoords.x2 && boundingBoxCoords.y2 && (
         <div style={boundingBoxStyle}></div>
       )}
       <div>
         <div className='button-bounding'>
-        <button type="button" className="btn btn-primary btn-lg" onClick={handleStartDrawing} disabled={!imageLoaded}>Draw Bounding Box</button>
-        <button type="button" className="btn btn-primary btn-lg" onClick={handleReset} disabled={!imageLoaded}>Reset</button>
-        <button type="button" className="btn btn-primary btn-lg" onClick={setBoundingBox} disabled={!imageLoaded}>Confirm</button>
+          <button type="button" className="btn btn-primary btn-medium" onClick={handleStartDrawing} >Draw Bounding Box</button>
+          <button type="button" className="btn btn-primary btn-medium" onClick={handleReset}>Reset</button>
+          <button type="button" className="btn btn-primary btn-medium" onClick={setBoundingBox}>Confirm</button>
         {/* {boundingBoxCoords.x1 && boundingBoxCoords.y1 && boundingBoxCoords.x2 && boundingBoxCoords.y2 && (
           <div>
             Current coordinates: x1={boundingBoxCoords.x1}, y1={boundingBoxCoords.y1}, x2={boundingBoxCoords.x2}, y2=

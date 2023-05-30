@@ -14,7 +14,7 @@ export default function DashboardPage() {
     const [imageopen,setImageOpen] = React.useState(false);
     const [rowData,setRowData] = React.useState('');
     const [images,setImages] = useState([]);
-
+    
     function handleImageOpen(row){
       setRowData(`${row.getValue('date')}`)
       setImageOpen(true);
@@ -59,6 +59,25 @@ export default function DashboardPage() {
             <TopNavBar loading={loading} setLoading={setLoading}/>
             {!loading && 
             <div className='container'>
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="card text-white bg-danger mb-3">
+                    <div class="card-body">
+                      <h5 class="card-title">Number of Violated People Detected Today</h5>
+                      <p class="card-text font-weight-bold" >25</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="card text-white bg-danger mb-3">
+                    <div class="card-body">
+                      <h5 class="card-title">Number of Obstacles Detected Today</h5>
+                      <p class="card-text font-weight-bold">1</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <MaterialReactTable
                 columns={columns}
                 data={data}
@@ -69,10 +88,11 @@ export default function DashboardPage() {
                   sorting:[
                     {id:'date',desc:true}
                   ],
-                  density:'comfortable'
+                  density:'compact',
+                  pagination: { pageSize: 5 },
                 }}
                 muiTablePaginationProps={{
-                  rowsPerPageOptions: [5],
+                  rowsPerPageOptions: [5,10],
                 }}
                 displayColumnDefOptions={{
                   'mrt-row-actions': {
