@@ -7,14 +7,19 @@ import { Box,Button,Dialog,DialogActions,DialogContent,DialogTitle,IconButton,Me
 import { Delete, Edit,ChangeCircle,Preview} from '@mui/icons-material';
 import ImageModal from '../../components/image-modal/image-modal';
 import get from '../../components/http/get';
+import Loader from '../../components/loader/loader';
 
 export default function DashboardPage() {
-    const [loading,setLoading] = React.useState(true);
-    const [data,setData] = React.useState([]);
-    const [imageopen,setImageOpen] = React.useState(false);
-    const [rowData,setRowData] = React.useState('');
-    const [images,setImages] = useState([]);
-    
+    const [loading,setLoading] = useState(true);
+    const [processing,setProcessing] = useState(false);
+    const [data,setData] = useState([]);
+    const [imageopen,setImageOpen] = useState(false);
+    const [rowData,setRowData] = useState('');
+    const [violated_images,setViolatedImages] = useState([]);
+    const [obstacle_images,setObstacleImages] = useState([]);
+    const [violated_num,setViolatedNum]  = useState(0);
+    const [obstacle_num,setObstacleNum] = useState(0);
+
     function handleImageOpen(row){
       setRowData(`${row.getValue('date')}`)
       setImageOpen(true);
@@ -23,24 +28,54 @@ export default function DashboardPage() {
     function handleImageClose(){
       setImageOpen(false);
       setRowData("");
-      setImages([]);
+      setViolatedImages([]);
+      setObstacleImages([]);
     }
 
     useEffect(() => {
-      get('dates')
-      .then(response=>{
-          if(response.status == 200){
-              const tableData = response.data.map((item) => {{
-                  return {
-                      "date":item
-                  }
-              }})
-              setData(tableData)
-          }
-      })
-      .catch(error => {
-              console.log(error)
-      })
+      const timeout = setTimeout(() => {
+        setProcessing(true)
+        get('dates')
+          .then(response => {
+            if (response.status === 200) {
+              const tableData = response.data.map((item) => {
+                return {
+                  "date": item
+                };
+              });
+              setData(tableData);
+            }
+          })
+          .catch(error => {
+            console.log(error);
+          }); 
+
+        get('violated')
+          .then(response => {
+            if(response.status == 200){
+              setViolatedNum(response.data)
+            }
+          })
+          .catch(error => {
+            console.log(error);
+          })
+
+        get('obstacle')
+          .then(response => {
+            if(response.status == 200){
+              setObstacleNum(response.data)
+            }
+          })
+          .catch(error => {
+            console.log(error);
+          })
+          .finally(() =>{
+            setProcessing(false);
+          })
+
+      }, 1000); 
+
+      return () => clearTimeout(timeout); 
     }, []);
 
     const columns = React.useMemo(
@@ -59,20 +94,20 @@ export default function DashboardPage() {
             <TopNavBar loading={loading} setLoading={setLoading}/>
             {!loading && 
             <div className='container'>
-              <div class="row">
-                <div class="col-sm-6">
-                  <div class="card text-white bg-danger mb-3">
-                    <div class="card-body">
-                      <h5 class="card-title">Number of Violated People Detected Today</h5>
-                      <p class="card-text font-weight-bold" >25</p>
+              <div className="row">
+                <div className="col-sm-6">
+                  <div className="card text-white bg-danger mb-3">
+                    <div className="card-body">
+                      <h5 className="card-title">Number of Violated People Detected Today</h5>
+                      <p className="card-text font-weight-bold" >{violated_num}</p>
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6">
-                  <div class="card text-white bg-danger mb-3">
-                    <div class="card-body">
-                      <h5 class="card-title">Number of Obstacles Detected Today</h5>
-                      <p class="card-text font-weight-bold">1</p>
+                <div className="col-sm-6">
+                  <div className="card text-white bg-danger mb-3">
+                    <div className="card-body">
+                      <h5 className="card-title">Number of Obstacles Detected Today</h5>
+                      <p className="card-text font-weight-bold">{obstacle_num}</p>
                     </div>
                   </div>
                 </div>
@@ -120,9 +155,12 @@ export default function DashboardPage() {
               open={imageopen}
               onClose={handleImageClose}
               date={rowData}
-              images={images}
-              setImages={setImages}
+              violated_images={violated_images}
+              setViolatedImages={setViolatedImages}
+              obstacle_images={obstacle_images}
+              setObstacleImages={setObstacleImages}
             />
+            <Loader processing={processing}></Loader>
         </>
     );
   }

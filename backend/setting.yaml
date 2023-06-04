@@ -11,7 +11,7 @@ redis:
   host: localhost
   port: 6379
 ai:
-  weight_file: "ai/detect/1.pt"
+  weight_file: "ai/detect/best.pt"
   img_size: 640
   iou_thres: 0.45
   conf_thres: 0.1

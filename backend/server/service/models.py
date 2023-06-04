@@ -17,8 +17,9 @@ class Image(db.Model):
     __tablename__= "image"
     id = db.Column(db.Integer,primary_key=True)
     time = db.Column(db.TIMESTAMP, nullable=False)
-    img_paths = db.Column(db.ARRAY(db.String(255)), nullable=False)
-    
+    violated_img_paths = db.Column(db.ARRAY(db.String(255)))
+    obstacle_img_paths = db.Column(db.ARRAY(db.String(255)))
+
 # Set Admin Account
 def create_admin():
     admin_name = setting["admin_account"]

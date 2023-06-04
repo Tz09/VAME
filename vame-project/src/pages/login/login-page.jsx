@@ -50,21 +50,28 @@ export default function LoginPage() {
 
         if(isvalid){
             setProcessing(true);
-            post('login',formData)
-                .then(response=>{
-                    if(response.status == 200){
-                        setFormData(({
-                            username: "",
-                            password: "",
-                        }))
-                        navigate('/')
+            const timeout = setTimeout(() => {
+                post('login', formData)
+                  .then(response => {
+                    if (response.status === 200) {
+                      setFormData({
+                        username: "",
+                        password: "",
+                      });
+                      navigate('/');
                     }
-                })
-                .catch(error => {
+                  })
+                  .catch(error => {
                     setErrorMessage(error.response.data['message']);
-                    setProcessing(false)
-                })
-        }
+                    setProcessing(false);
+                  })
+                  .finally(() =>{
+                    setProcessing(false);
+                  })
+              }, 1000); 
+          
+              return () => clearTimeout(timeout); 
+            }
             setErrorMessage('');
     }
 

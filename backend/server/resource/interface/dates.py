@@ -1,12 +1,9 @@
-from flask import request,jsonify,make_response
+from flask import request,jsonify
 from flask_restful import Resource
 from server.service.models import db,Image
-from server.service.flask_extension import ma
-import base64
-import os
 from sqlalchemy import func
 from datetime import datetime
-import json
+
 url = [('Dates','/dates')]
 
 class Dates(Resource):
@@ -19,7 +16,11 @@ class Dates(Resource):
         date_str = request.json.get('date')
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         rows = Image.query.filter(func.date(Image.time) == date).all()
-        image_paths = []
+        violated_image_paths = []
+        obstacle_images_paths = []
         for row in rows:
-            image_paths.extend(row.img_paths)
-        return jsonify(image_paths)
+            if row.violated_img_paths != None:
+                violated_image_paths.extend(row.violated_img_paths)
+            if row.obstacle_img_paths != None:
+                obstacle_images_paths.extend(row.obstacle_img_paths)
+        return jsonify(violated_image_paths,obstacle_images_paths)

@@ -31,7 +31,15 @@ model = attempt_load(setting["ai"]["weight_file"],map_location=device)
 stride = int(model.stride.max())
 imgsz = check_img_size(img_size, s=stride)  # check img_size
 image_path = setting["image_file"]
+# Run inference
+if device.type != 'cpu':
+    model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
 
+# Append New Label 
+names = model.module.names if hasattr(model, 'module') else model.names
+names.append('violated')
+colors = [[255,128,0],[0,128,255],[0,0,255]]
+# ['chair', 'people', 'white shoe', 'violated']
 # Initialize the camera and global variable
 camera = cv2.VideoCapture(0)
 global crop_flag,last_crop_time,switch,roi
@@ -47,17 +55,7 @@ def detect(frame):
     global roi
     with torch.no_grad():
         cudnn.benchmark = True
-        imgsz = check_img_size(img_size, s=stride)  # check img_size
         half = False
-
-        # Run inference
-        if device.type != 'cpu':
-            model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
-
-        # Append New Label 
-        names = model.module.names if hasattr(model, 'module') else model.names
-        names.append('violated')
-        colors = [[255,128,0],[0,128,255],[0,0,255]]
            
         # Padded resize
         img = letterbox(frame, img_size,stride)[0]
@@ -97,9 +95,9 @@ def detect(frame):
                 arr_det = det.cpu().numpy()
                 
                 # Get People and White Shoe Array
-                people = arr_det[(np.where(arr_det[:,-1] == 0))]
+                people = arr_det[(np.where(arr_det[:,-1] == 1))]
                 num_people = len(people)
-                white_shoe = arr_det[(np.where(arr_det[:,-1] == 1))]
+                white_shoe = arr_det[(np.where(arr_det[:,-1] == 2))]
                 
                # Loop through people 
                 # for i in people:
@@ -121,7 +119,7 @@ def detect(frame):
                     
                     # update the label for the person if there are any violations
                     if len(violated_indices) > 0:
-                        people[i,5] = 2.0
+                        people[i,5] = 3.0
                         num_violated += 1
 
                 if len(roi) > 0:
@@ -145,14 +143,17 @@ def detect(frame):
                 if crop_flag and len(people) > 0:
                     crop_flag = False
                     count=1
-                    img_paths = []
+                    violated_img_paths = []
                     dt = datetime.now()
                     year = str(dt.year)
                     month = str(dt.month).zfill(2)
                     day = str(dt.day).zfill(2)
-                    image_dir = os.path.join(image_path, year, month, day)
-                    if not os.path.exists(image_dir):
-                        os.makedirs(image_dir)
+                    violated_image_dir = os.path.join(image_path, year, month, day,'violated')
+                    obstacle_image_dir = os.path.join(image_path, year, month, day,'obstacle')
+                    if not os.path.exists(violated_image_dir):
+                        os.makedirs(violated_image_dir)
+                    if not os.path.exists(obstacle_image_dir):
+                        os.makedirs(obstacle_image_dir)
                     str_dt = dt.strftime("%d%m%Y%H%M%S")
 
                     #Afterward change to violate_det
@@ -162,14 +163,14 @@ def detect(frame):
                         crop_img=img_[y:y+ h, x:x + w]      
                         crop_img = cv2.resize(crop_img,(480,480))
                         filename=f'{str_dt}_{count}.png'
-                        filepath=os.path.join(image_dir, filename)
+                        filepath=os.path.join(violated_image_dir, filename)
                         filepath = filepath.replace('\\','/')
                         cv2.imwrite(filepath, crop_img)
-                        img_paths.append(filepath)
+                        violated_img_paths.append(filepath)
                         count+=1
                     with app.app_context():
                         # Store time and image_path into database
-                        new_image = Image(time=dt,img_paths=img_paths)
+                        new_image = Image(time=dt,violated_img_paths=violated_img_paths)
                         db.session.add(new_image)
                         db.session.commit()
 
