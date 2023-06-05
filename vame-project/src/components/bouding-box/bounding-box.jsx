@@ -82,7 +82,7 @@ function BoundedImage(props) {
       )}
       <div>
         <div className='button-bounding'>
-          <button type="button" className="btn btn-primary btn-medium" onClick={handleStartDrawing} >Draw Bounding Box</button>
+          <button type="button" className="btn btn-primary btn-medium" onClick={handleStartDrawing} >Draw Region of Obstacle</button>
           <button type="button" className="btn btn-primary btn-medium" onClick={handleReset}>Reset</button>
           <button type="button" className="btn btn-primary btn-medium" onClick={setBoundingBox}>Confirm</button>
         {/* {boundingBoxCoords.x1 && boundingBoxCoords.y1 && boundingBoxCoords.x2 && boundingBoxCoords.y2 && (

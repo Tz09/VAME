@@ -17,8 +17,9 @@ export default function ImageModal(props){
             .then(response => {
                 post('image',{"img_path":response.data})
                 .then(response => {
+                    console.log(response)
                     props.setViolatedImages(response.data[0].violated_images)
-                    props.setObstacleImages(response.data[0].obstacle_images)
+                    props.setObstacleImages(response.data[1].obstacle_images)
                     setLoading(false)
                     setProcessing(false)
                 })
