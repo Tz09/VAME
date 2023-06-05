@@ -3,10 +3,10 @@ import os
 from flask import Flask
 from flask_restful import Api
 from server.service.flask_extension import bcrpyt,cors,session,ma
-from server.service.models import db,create_admin
+from server.service.models import db,create_admin,setting
 
-with open('setting.yaml') as f:
-    setting = yaml.safe_load(f)
+# with open('setting.yaml') as f:
+#     setting = yaml.safe_load(f)
 
 import sys
 sys.path.insert(0, './ai')

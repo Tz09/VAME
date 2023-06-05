@@ -9,7 +9,6 @@ interfaces = ['login',
               'admin',
               'image',
               'dates',
-              'streaming',
               'violated',
               'obstacle',
               'week_data']

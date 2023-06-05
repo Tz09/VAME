@@ -1,8 +1,7 @@
 from flask import request,jsonify,make_response,session
 from flask_restful import Resource
-from server.service.models import User
+from server.service.models import User,db
 from server.service.flask_extension import bcrpyt
-
 url = [('Login','/login')]
  
 class Login(Resource):

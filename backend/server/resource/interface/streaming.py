@@ -14,12 +14,12 @@ from ai.utils.datasets import letterbox
 from ai.utils.plots import plot_one_box
 from ai.utils.torch_utils import select_device
 from server import app
-from server.service.models import db,Image
+from server.service.models import db,Image,setting
 
 url = [('Streaming','/streaming')]
  
-with open('setting.yaml') as f:
-    setting = yaml.safe_load(f)
+# with open('setting.yaml') as f:
+#     setting = yaml.safe_load(f)
 
 # Initialize the model and some variable for model
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -86,8 +86,7 @@ def detect(frame):
         pred = non_max_suppression(pred, conf_thres, iou_thres)
         for i, det in enumerate(pred):  # detections per image
             s, im0 = '', frame
-        
-            gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
+    
             num_people = 0
             num_violated = 0
             num_obstacle = 0
@@ -98,9 +97,9 @@ def detect(frame):
                 arr_det = det.cpu().numpy()
                 
                 # Get People and White Shoe Array
+                object = arr_det[(np.where(arr_det[:,-1] == 0))]
                 people = arr_det[(np.where(arr_det[:,-1] == 1))]
                 white_shoe = arr_det[(np.where(arr_det[:,-1] == 2))]
-                object = arr_det[(np.where(arr_det[:,-1] == 0))]
 
                 for i in range(len(people)):
                     # find the indices of white shoes that violate the person's boundaries
@@ -206,16 +205,16 @@ def detect(frame):
             text_size2,_ = cv2.getTextSize(text2,font,font_scale,thickness)
             text_x2 = im0.shape[1] - text_size2[0] - 10  # 10 pixels from the right edge
             text_y2 = text_y1 + text_size1[1] + 10
-            cv2.putText(im0,text1, (text_x1, text_y1), font, font_scale, (0, 255, 0), thickness)
-            cv2.putText(im0,text2, (text_x2, text_y2), font, font_scale, (0, 0,255), thickness)
 
             text3 = "Obstacle Detected: {}".format(num_obstacle)
             text_size3,_ = cv2.getTextSize(text3,font,font_scale,thickness)
             text_x3 = im0.shape[1] - text_size3[0] - 10  # 10 pixels from the right edge
             text_y3 = text_y2 + text_size2[1] + 10
+
             cv2.putText(im0,text1, (text_x1, text_y1), font, font_scale, (0, 255, 0), thickness)
             cv2.putText(im0,text2, (text_x2, text_y2), font, font_scale, (0, 0,255), thickness)
             cv2.putText(im0,text3,(text_x3, text_y3), font, font_scale, (255, 0,0), thickness)
+
             if (len(roi) > 0):
                 cv2.rectangle(im0,(roi[0],roi[1]),(roi[2],roi[3]),(0,255,0),1)
         return im0

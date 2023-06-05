@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useMemo } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../data/config';
 import TopNavBar from "../../components/top-navbar/top-navbar"
@@ -7,6 +7,7 @@ import { Box,Button,Dialog,DialogActions,DialogContent,DialogTitle,IconButton,Me
 import { Delete, Edit,ChangeCircle,Preview} from '@mui/icons-material';
 import ImageModal from '../../components/image-modal/image-modal';
 import get from '../../components/http/get';
+import _delete from '../../components/http/delete';
 import Loader from '../../components/loader/loader';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis,Tooltip as RechartTooltip,Label,Legend,ResponsiveContainer} from 'recharts';
 
@@ -90,7 +91,7 @@ export default function DashboardPage() {
       return () => clearTimeout(timeout); 
     }, []);
 
-    const columns = React.useMemo(
+    const columns = useMemo(
       () => [
           {
               header: 'Date',
@@ -100,10 +101,6 @@ export default function DashboardPage() {
       ],
       [],
     );
-    
-    function formatYAxis(value){
-      return Math.floor(value);
-    };
 
     return (
         <>
@@ -150,8 +147,10 @@ export default function DashboardPage() {
                 columns={columns}
                 data={data}
                 enableRowActions
+                enableRowSelection
                 enableColumnFilters={false}
                 positionActionsColumn="last"
+                positionToolbarAlertBanner="bottom"
                 initialState={{
                   sorting:[
                     {id:'date',desc:true}
@@ -182,8 +181,49 @@ export default function DashboardPage() {
                     </Tooltip>
                   </Box>
                 )}
+                renderTopToolbarCustomActions={({ table }) => {
+                  const handleDelete = () => {
+                    if (
+                      !confirm(`Are you sure you want to remove these data?`)
+                    ) {
+                      return;
+                    }
+                    const dates = []
+                    table.getSelectedRowModel().flatRows.map((row) => {
+                      const date = row.getValue('date');
+                      dates.push(date);
+                    });
+                    const payload = {"date":dates}
+                    console.log(dates)
+                    _delete('dates',payload)
+                      .then(response=>{
+                        if(response.status == 200){
+                            alert(response.data['message']);
+                            window.location.href = "./dashboard";
+                        }
+                        })
+                        .catch(error => {
+                            alert(error.response.data['message']);
+                            window.location.href = "./dashboard";
+                        })
+                  };
+
+                  return (
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <Button
+                        color="error"
+                        disabled={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
+                        onClick={handleDelete}
+                        variant="contained"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  );
+                }}
               />
-            </div>}
+            </div>
+            }
             <ImageModal
               open={imageopen}
               onClose={handleImageClose}
