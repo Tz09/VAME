@@ -11,7 +11,8 @@ interfaces = ['login',
               'dates',
               'violated',
               'obstacle',
-              'week_data']
+              'week_data',
+              'streaming']
 
 URLs = []
 for interface in interfaces:

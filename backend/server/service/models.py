@@ -1,7 +1,7 @@
 import yaml
 from .flask_extension import db,bcrpyt
 
-with open('setting.yaml') as f:
+with open('server/setting.yaml') as f:
     setting = yaml.safe_load(f)
 
 # Database Model for User

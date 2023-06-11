@@ -71,6 +71,20 @@
     margin: 10px;
 }
 
+.password-container {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    position: relative; /* Add this to make the position relative */
+  }
+  
+  .password-container span {
+    position: absolute;
+    right: 10px; /* Adjust the positioning based on your preference */
+    color: black;
+    margin: 10px;
+  }
+  
 .login-container img{
     width: 200px;
     align-self: center;

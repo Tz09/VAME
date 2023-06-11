@@ -1,6 +1,5 @@
 import cv2
 import torch
-import yaml
 import time
 import os
 import numpy as np
@@ -8,18 +7,15 @@ import torch.backends.cudnn as cudnn
 from datetime import datetime
 from flask_restful import Resource
 from flask import Response,request,jsonify
-from ai.models.experimental import attempt_load
-from ai.utils.general import check_img_size,non_max_suppression,scale_coords
-from ai.utils.datasets import letterbox
-from ai.utils.plots import plot_one_box
-from ai.utils.torch_utils import select_device
+from server.ai.models.experimental import attempt_load
+from server.ai.utils.general import check_img_size,non_max_suppression,scale_coords
+from server.ai.utils.datasets import letterbox
+from server.ai.utils.plots import plot_one_box
+from server.ai.utils.torch_utils import select_device
 from server import app
 from server.service.models import db,Image,setting
 
 url = [('Streaming','/streaming')]
- 
-# with open('setting.yaml') as f:
-#     setting = yaml.safe_load(f)
 
 # Initialize the model and some variable for model
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -117,7 +113,7 @@ def detect(frame):
                     roi = np.array(roi)
                     inside_x = np.logical_and(object[:,0] >= roi[0],object[:,2] <= roi[2])
                     inside_y = np.logical_and(object[:,1] >= roi[1],object[:,3] <= roi[3])
-                    inside_roi = np.logical_and(inside_x,inside_y)
+                    inside_roi = np.logical_or(inside_x,inside_y)
                     if np.any(inside_roi):
                         object[:,5][inside_roi] = 4.0
 
@@ -225,7 +221,7 @@ def gen_frames():
         success,frame = camera.read()
         if success:
             current_time = time.time()
-            if current_time - last_crop_time >= 60:
+            if current_time - last_crop_time >= 300:
                 crop_flag = True
                 last_crop_time = current_time
             frame = detect(frame)

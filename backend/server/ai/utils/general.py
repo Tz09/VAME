@@ -18,9 +18,9 @@ import torch
 import torchvision
 import yaml
 
-from ai.utils.google_utils import gsutil_getsize
-from ai.utils.metrics import fitness
-from ai.utils.torch_utils import init_torch_seeds
+from server.ai.utils.google_utils import gsutil_getsize
+from server.ai.utils.metrics import fitness
+from server.ai.utils.torch_utils import init_torch_seeds
 
 # Settings
 torch.set_printoptions(linewidth=320, precision=5, profile='long')

@@ -22,19 +22,15 @@ class Week_data(Resource):
             .all()
         )
         
-        # Create the data structure
         days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         weekly_data_structure = []
 
-        # Initialize the dictionary with default values of 0 for each day
         weekly_data_dict = {day: {'name': day, 'violated': 0, 'obstacle': 0} for day in days_of_week}
 
-        # Update the dictionary with the actual counts from the query
         for row in weekly_data:
             day = row.day
             weekly_data_dict[day] = {'name': day, 'violated': row.violated, 'obstacle': row.obstacle}
 
-        # Append the dictionary values to the final data structure
         weekly_data_structure = list(weekly_data_dict.values())
 
         return jsonify(weekly_data_structure)

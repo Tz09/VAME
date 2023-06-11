@@ -1,0 +1,139 @@
+2023-06-11 11:26:44,127 ERROR:Redis Connect Failed.
+2023-06-11 11:26:44,127 ERROR:Server Start Failed.
+2023-06-11 11:27:32,699 ERROR:Redis Connect Failed.
+2023-06-11 11:27:32,699 ERROR:Server Start Failed.
+2023-06-11 11:29:20,454 ERROR:Redis Connect Failed.
+2023-06-11 11:29:20,454 ERROR:Server Start Failed.
+2023-06-11 11:34:21,937 ERROR:Redis Connect Failed.
+2023-06-11 11:34:21,937 ERROR:Server Start Failed.
+2023-06-11 11:34:51,357 ERROR:Server Start Failed.
+2023-06-11 11:40:31,091 ERROR:Redis Connect Failed.
+2023-06-11 11:40:36,878 ERROR:Server Start Failed.
+2023-06-11 11:41:07,590 ERROR:Redis Connect Failed.
+2023-06-11 11:41:13,300 ERROR:Server Start Failed.
+2023-06-11 11:41:21,507 ERROR:Redis Connect Failed.
+2023-06-11 11:41:27,381 ERROR:Server Start Failed.
+2023-06-11 11:43:13,561 ERROR:Redis Connect Failed.
+2023-06-11 11:43:18,943 ERROR:Server Start Failed.
+2023-06-11 11:44:41,512 ERROR:Redis Connect Failed.
+2023-06-11 11:44:47,143 ERROR:Server Start Failed.
+2023-06-11 11:45:01,890 ERROR:Redis Connect Failed.
+2023-06-11 11:45:07,437 ERROR:Server Start Failed.
+2023-06-11 11:52:21,069 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 33, in create_app
+    create_admin()
+  File "C:\Tz\Code\FYP\app\backend\server\service\models.py", line 25, in create_admin
+    admin_name = setting["admin_account"]
+KeyError: 'admin_account'
+
+2023-06-11 11:52:28,817 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 33, in create_app
+    create_admin()
+  File "C:\Tz\Code\FYP\app\backend\server\service\models.py", line 25, in create_admin
+    admin_name = setting["admin_account"]
+KeyError: 'admin_account'
+
+2023-06-11 11:53:07,836 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 33, in create_app
+    create_admin()
+  File "C:\Tz\Code\FYP\app\backend\server\service\models.py", line 25, in create_admin
+    admin_name = setting["admin_account"]
+KeyError: 'admin_account'
+
+2023-06-11 11:55:02,723 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 42, in <module>
+    app,api = create_app()
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 32, in create_app
+    create_admin()
+  File "C:\Tz\Code\FYP\app\backend\server\service\models.py", line 25, in create_admin
+    admin_name = setting["admin_account"]
+KeyError: 'admin_account'
+
+2023-06-11 11:58:29,820 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 49, in <module>
+    from server.resource import interface
+  File "C:\Tz\Code\FYP\app\backend\server\resource\interface\__init__.py", line 20, in <module>
+    _interface = importlib.import_module(f'.{interface}', package=__name__)
+  File "C:\Python\Python 3.7.9\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ModuleNotFoundError: No module named 'server.resource.interface.adashdg'
+
+2023-06-11 11:58:35,690 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 49, in <module>
+    from server.resource import interface
+  File "C:\Tz\Code\FYP\app\backend\server\resource\interface\__init__.py", line 20, in <module>
+    _interface = importlib.import_module(f'.{interface}', package=__name__)
+  File "C:\Python\Python 3.7.9\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ModuleNotFoundError: No module named 'server.resource.interface.adashdg'
+
+2023-06-11 11:59:04,988 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 49, in <module>
+    from server.resource import interface
+  File "C:\Tz\Code\FYP\app\backend\server\resource\interface\__init__.py", line 20, in <module>
+    _interface = importlib.import_module(f'.{interface}', package=__name__)
+  File "C:\Python\Python 3.7.9\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ModuleNotFoundError: No module named 'server.resource.interface.adashdg'
+
+2023-06-11 12:00:05,551 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 44, in <module>
+    from server.resource import interface
+  File "C:\Tz\Code\FYP\app\backend\server\resource\interface\__init__.py", line 20, in <module>
+    _interface = importlib.import_module(f'.{interface}', package=__name__)
+  File "C:\Python\Python 3.7.9\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ModuleNotFoundError: No module named 'server.resource.interface.adashdg'
+
+2023-06-11 12:00:11,362 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 44, in <module>
+    from server.resource import interface
+  File "C:\Tz\Code\FYP\app\backend\server\resource\interface\__init__.py", line 20, in <module>
+    _interface = importlib.import_module(f'.{interface}', package=__name__)
+  File "C:\Python\Python 3.7.9\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ModuleNotFoundError: No module named 'server.resource.interface.adashdg'
+
+2023-06-11 12:00:51,517 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 44, in <module>
+    from server.resource import interface
+  File "C:\Tz\Code\FYP\app\backend\server\resource\interface\__init__.py", line 20, in <module>
+    _interface = importlib.import_module(f'.{interface}', package=__name__)
+  File "C:\Python\Python 3.7.9\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ModuleNotFoundError: No module named 'server.resource.interface.adashdg'
+
+2023-06-11 12:08:04,763 ERROR:Server Start Failed.
+2023-06-11 12:08:04,764 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 9, in <module>
+    from server.service.models import db,create_admin,setting
+  File "C:\Tz\Code\FYP\app\backend\server\service\models.py", line 8, in <module>
+    class User(db.Model):
+  File "C:\Tz\Code\FYP\app\backend\server\service\models.py", line 13, in User
+    is_admin = db.Column(db.Boolan,nullable=False,default=False)
+  File "C:\Python\Python 3.7.9\lib\site-packages\flask_sqlalchemy\extension.py", line 1005, in __getattr__
+    raise AttributeError(name)
+AttributeError: Boolan
+
+2023-06-11 12:08:55,992 ERROR:Server Start Failed.
+2023-06-11 12:08:55,992 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 45, in <module>
+    from server.resource import interface
+  File "C:\Tz\Code\FYP\app\backend\server\resource\interface\__init__.py", line 20, in <module>
+    _interface = importlib.import_module(f'.{interface}', package=__name__)
+  File "C:\Python\Python 3.7.9\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ModuleNotFoundError: No module named 'server.resource.interface.adashdg'
+
+2023-06-11 12:55:30,640 ERROR:Server Start Failed.
+2023-06-11 12:55:30,641 ERROR:Traceback (most recent call last):
+  File "C:\Tz\Code\FYP\app\backend\server\__init__.py", line 45, in <module>
+    from server.resource import interface
+  File "C:\Tz\Code\FYP\app\backend\server\resource\interface\__init__.py", line 19, in <module>
+    _interface = importlib.import_module(f'.{interface}', package=__name__)
+  File "C:\Python\Python 3.7.9\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "C:\Tz\Code\FYP\app\backend\server\resource\interface\streaming.py", line 24, in <module>
+    iou_thres = setting["ai"]["iou_thr"]
+KeyError: 'iou_thr'
+
