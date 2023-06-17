@@ -22,6 +22,7 @@ class Info(Resource):
     # Change Password for Non-Admin
     def post(self):
         json = request.get_json()
+        print(json)
         username = json.get("username")
         password = json.get("password")
     

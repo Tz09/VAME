@@ -41,7 +41,7 @@ export default function PasswordAppendAdminModal(props){
               }
           })
           .catch(error => {
-              setErrorMessage(error.response.data['message']);
+              props.setErrorMessage(error.response.data['message']);
           })
       }
     }

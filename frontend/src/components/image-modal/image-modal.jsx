@@ -7,7 +7,6 @@ import Loader from '../../components/loader/loader';
 
 export default function ImageModal(props){
 
-    const [loading,setLoading] = useState(true);
     const [processing,setProcessing] = useState(false);
 
     useEffect(() => {
@@ -17,10 +16,8 @@ export default function ImageModal(props){
             .then(response => {
                 post('image',{"img_path":response.data})
                 .then(response => {
-                    console.log(response)
                     props.setViolatedImages(response.data[0].violated_images)
                     props.setObstacleImages(response.data[1].obstacle_images)
-                    setLoading(false)
                     setProcessing(false)
                 })
             }).catch(error => console.log(error));}
@@ -34,7 +31,7 @@ export default function ImageModal(props){
         <Dialog open={props.open} fullWidth maxWidth="lg">
             <DialogTitle textAlign="center">{props.date}</DialogTitle>
             <DialogContent>
-            {!loading && 
+            {!processing && 
             <div>
                 <h2 className="image-title">Violated Images</h2>
                 <div className="image-list">

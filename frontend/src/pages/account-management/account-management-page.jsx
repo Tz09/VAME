@@ -177,20 +177,38 @@ export default function AccountManagementPage() {
         .catch(error => {
                 console.log(error)
         })
+        
+        get('admin')
+        .then(response=>{
+            if(response.data["message"] == 'True'){
+                get('login')
+                .then(response => {
+                        if(response.status == 200){
+                            setadminName(response.data.username);
+                        }
+                    }
+                )
+                
+            }
+        })
+        .catch(error => {
+                console.log(error)
+        })
+
     },[])
 
-    useEffect(() => {
-        (async () => {
-          try {
-            const resp = await get('admin');
-            if(resp.data["message"] == 'True'){
-            setadminName(resp.data.username);
-            }
-          } catch (error) {
-            console.log(error)
-          }
-        })();
-      }, []);
+    // useEffect(() => {
+    //     (async () => {
+    //       try {
+    //         const resp = await get('admin');
+    //         if(resp.data["message"] == 'True'){
+    //             setadminName(resp.data.username);
+    //         }
+    //       } catch (error) {
+    //         console.log(error)
+    //       }
+    //     })();
+    //   }, []);
 
     return (
         <>

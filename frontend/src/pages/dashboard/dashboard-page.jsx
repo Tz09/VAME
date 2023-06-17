@@ -146,6 +146,7 @@ export default function DashboardPage() {
               <MaterialReactTable
                 columns={columns}
                 data={data}
+                enableColumnActions={false}
                 enableRowActions
                 enableRowSelection
                 enableColumnFilters={false}
