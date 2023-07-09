@@ -12,6 +12,7 @@ redis:
   port: 6379
 ai:
   weight_file: "server/ai/model/best.pt"
+  source: "0"
   img_size: 640
   iou_thres: 0.5
-  conf_thres: 0.8
+  conf_thres: 0.1

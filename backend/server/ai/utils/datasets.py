@@ -268,7 +268,7 @@ class LoadStreams:  # multiple IP or RTSP cameras
         self.mode = 'stream'
         self.img_size = img_size
         self.stride = stride
-
+        self.stopped = True
         if os.path.isfile(sources):
             with open(sources, 'r') as f:
                 sources = [x.strip() for x in f.read().strip().splitlines() if len(x.strip())]
@@ -303,10 +303,15 @@ class LoadStreams:  # multiple IP or RTSP cameras
     def update(self, index, cap):
         # Read next stream frame in a daemon thread
         n = 0
-        while cap.isOpened():
+        self.stopped = False
+        while self.stopped != True and cap.isOpened():
             n += 1
             # _, self.imgs[index] = cap.read()
-            cap.grab()
+            grab = cap.grab()
+            if not grab:
+                print('[Exiting] No more frames to read')
+                self.stopped = True
+                break
             if n == 4:  # read every 4th frame
                 success, im = cap.retrieve()
                 self.imgs[index] = im if success else self.imgs[index] * 0
@@ -338,6 +343,9 @@ class LoadStreams:  # multiple IP or RTSP cameras
 
     def __len__(self):
         return 0  # 1E12 frames = 32 streams at 30 FPS for 30 years
+    
+    def stop(self):
+        self.stopped = True
 
 
 def img2label_paths(img_paths):
