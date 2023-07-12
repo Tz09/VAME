@@ -226,9 +226,6 @@ class StreamingThread:
         
     def change_roi(self,roi):
         self.roi = roi
-        # Bounding Box Reset
-        if self.roi == [None,None,None,None]:
-            roi = []
     
     def start(self):
         self.stopped=False

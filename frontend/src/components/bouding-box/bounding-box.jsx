@@ -45,7 +45,11 @@ function BoundedImage(props) {
 
   const setBoundingBox = () => {
     let roi_coordinates = [boundingBoxCoords.x1,boundingBoxCoords.y1,boundingBoxCoords.x2,boundingBoxCoords.y2]
-  
+    
+    if (roi_coordinates.every(coord => typeof coord === 'undefined')) {
+      roi_coordinates = [0, 0, 0, 0];
+    }
+
     post('streaming',{ "roi": roi_coordinates })
     .then(response => {
         if (response.status == 200) {
