@@ -41,20 +41,19 @@ class StreamingThread:
         violated_last_crop_time,obstacle_last_crop_time = time.time(),time.time()
         while True:
             current_time = time.time()
-            if current_time - violated_last_crop_time >= 5:
+            if current_time - violated_last_crop_time >= setting["ai"]["time"]:
                 self.violated_crop_flag = True
                 violated_last_crop_time = current_time
-            if current_time - obstacle_last_crop_time >= 5:
+            if current_time - obstacle_last_crop_time >= setting["ai"]["time"]:
                 self.obstacle_crop_flag = True
                 obstacle_last_crop_time = current_time
 
             if self.dataset.stopped == False:
-                self.processed_frame = self.detect(self.dataset)
+                self.processed_frame = self.detect()
             else:
                 break
 
-
-    def detect(self,frame):
+    def detect(self):
         with self.roi_lock:
             roi = self.roi
 

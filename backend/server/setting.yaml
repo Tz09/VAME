@@ -16,3 +16,4 @@ ai:
   img_size: 640
   iou_thres: 0.5
   conf_thres: 0.1
+  time: 300

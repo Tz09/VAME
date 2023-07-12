@@ -13,6 +13,9 @@ export default function LandingPage() {
     post('streaming',{"camera":"1"})
     .then(response => {
         if (response.status == 200) {
+          if(response.data["message"] == "Started" || response.data["message"] == "Stopped"){
+            window.location.href = "/";
+          }
         }
       })
       .catch(error => {

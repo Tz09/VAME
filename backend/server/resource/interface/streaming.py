@@ -1,5 +1,4 @@
 import cv2
-import traceback
 from flask_restful import Resource
 from flask import Response,request,jsonify
 from server.ai.utils.datasets import LoadStreams
