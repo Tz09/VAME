@@ -1,4 +1,9 @@
 # VAME
-- Open backend folder in the VS code and run "python run.py"
-- Open frontend folder in the VS code and run "npm run start"
+- Backend
+  - Open backend folder in the VS code 
+  - Run "pip install -r requirements.txt"
+  - Run "python run.py"
+- Frontend
+  - Open frontend folder in the VS code
+  - Run "npm run dev"
 - Have Fun!
