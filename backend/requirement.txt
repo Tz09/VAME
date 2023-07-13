@@ -1,7 +1,0 @@
-flask
-flask-sqlalchemy
-flask-bcrypt
-flask-session
-flask_marshmallow
-redis
-marshmallow-sqlalchemy
