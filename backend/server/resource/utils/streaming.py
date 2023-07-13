@@ -116,9 +116,9 @@ class StreamingThread:
 
                         if len(roi) > 0:
                             roi = np.array(roi)
-                            inside_x = np.logical_or(np.logical_and(object[:,0] >= roi[0], object[:,0] <= roi[2]), np.logical_and(object[:,2] >= roi[0], object[:,2] <= roi[2]))
-                            inside_y = np.logical_or(np.logical_and(object[:,1] >= roi[1], object[:,1] <= roi[3]), np.logical_and(object[:,3] >= roi[1], object[:,3] <= roi[3]))
-                            inside_roi = np.logical_and(inside_x,inside_y)
+                            x_axis = np.logical_and(object[:,0] <= roi[2],object[:,2] >= roi[0])
+                            y_axis = np.logical_and(object[:,1] <= roi[3],object[:,3] >= roi[1])
+                            inside_roi = np.logical_and(x_axis,y_axis)
                             if np.any(inside_roi):
                                 object[:,5][inside_roi] = 4.0
 

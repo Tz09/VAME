@@ -15,5 +15,5 @@ ai:
   source: "0"
   img_size: 640
   iou_thres: 0.5
-  conf_thres: 0.1
+  conf_thres: 0.6
   time: 300
